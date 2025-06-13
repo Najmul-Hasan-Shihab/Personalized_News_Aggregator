@@ -1,13 +1,14 @@
-from django.shortcuts import render
+# views.py
 from django.http import JsonResponse
-from .db import test_collection
+from .utils import aggregate_and_store_articles
+from .db import articles_collection
 
-def ping(request):
-    test_collection.insert_one({"message": "pong"})
+def update_articles(request):
+    print("🔁 update_articles called")  # Debug log
+    count = aggregate_and_store_articles()
+    return JsonResponse({"status": f"{count} new articles stored"})
 
-    last=test_collection.find().sort("_id", -1).limit(1)
-    message=list(last)[0]["message"]
 
-    return JsonResponse({"message": message})
-
-# Create your views here.
+def get_articles(request):
+    articles = list(articles_collection.find({}, {"_id": 0}))
+    return JsonResponse(articles, safe=False)

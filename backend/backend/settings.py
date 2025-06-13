@@ -125,3 +125,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for CORS
+
+# === News API Keys ===
+NEWSAPI_KEY = "312653a1442341ccad66eb5f1e217665"
+GNEWS_KEY = "fe26e15058f89be6b1f6f94d3a46e8ef"
+MEDIASTACK_KEY = "ab1b22f6b4c7fe6b3561eaa9e2748c69"

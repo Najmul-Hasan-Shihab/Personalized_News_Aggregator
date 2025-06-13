@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import ping
+from .views import update_articles, get_articles  # ⬅ import views
 
 urlpatterns = [
-    path('ping/', ping),
+    path("articles/update/", update_articles),
+    path("articles/", get_articles),
 ]
