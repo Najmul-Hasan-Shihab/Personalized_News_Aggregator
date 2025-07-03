@@ -1,0 +1,30 @@
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.category-card {
+  border: none;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+.category-card:hover,
+.category-card:focus {
+  transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+.category-card__text {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
