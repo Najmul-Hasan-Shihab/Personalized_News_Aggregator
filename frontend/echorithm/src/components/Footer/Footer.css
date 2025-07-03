@@ -1,0 +1,36 @@
+.footer {
+  background-color: #111827;
+  color: #d1d5db;
+  padding: 2rem 1rem;
+  margin-top: auto;
+}
+
+.footer__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer__text {
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.footer__links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.footer__links a {
+  color: #d1d5db;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.footer__links a:hover {
+  color: #ffffff;
+}
