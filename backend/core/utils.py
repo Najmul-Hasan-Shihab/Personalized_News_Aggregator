@@ -1,14 +1,13 @@
-from .db import articles_collection
+from datetime import datetime
+from .ai_tasks.summarize import generate_summary
+from .ai_tasks.sentiment import analyze_sentiment
+from .ai_tasks.ner import extract_entities
 from .news_sources.newsapi import fetch_from_newsapi
 from .news_sources.gnews import fetch_from_gnews
 from .news_sources.mediastack import fetch_from_mediastack
+from .db import articles_collection
 
 def aggregate_and_store_articles():
-    from .news_sources.newsapi import fetch_from_newsapi
-    from .news_sources.gnews import fetch_from_gnews
-    from .news_sources.mediastack import fetch_from_mediastack
-    from .db import articles_collection
-
     all_articles = (
         fetch_from_newsapi() +
         fetch_from_gnews() +
@@ -19,9 +18,44 @@ def aggregate_and_store_articles():
 
     inserted = 0
     for article in all_articles:
-        if not articles_collection.find_one({"url": article["url"]}):
-            articles_collection.insert_one(article)
-            inserted += 1
+        if articles_collection.find_one({"url": article["url"]}):
+            continue
 
-    print(f"✅ Total articles inserted: {inserted}")
+        content = article.get("content", "")
+        if not content or len(content.split()) < 30:
+            continue
+
+        # Summarization
+        try:
+            article["summary"] = generate_summary(content)
+        except Exception as e:
+            print(f"⚠️ Summarization failed: {e}")
+            article["summary"] = ""
+
+        # Sentiment Analysis
+        try:
+            sentiment = analyze_sentiment(content)
+            article["sentiment_label"] = sentiment["label"]
+            article["sentiment_confidence"] = sentiment["confidence"]
+        except Exception as e:
+            print(f"⚠️ Sentiment analysis failed: {e}")
+            article["sentiment_label"] = "Neutral"
+            article["sentiment_confidence"] = 0.0
+
+        # NER
+        try:
+            article["entities"] = extract_entities(content)
+        except Exception as e:
+            print(f"⚠️ NER failed: {e}")
+            article["entities"] = []
+
+
+        # Timestamp for tracking
+        article["ingested_at"] = datetime.utcnow()
+
+        # Insert into DB
+        articles_collection.insert_one(article)
+        inserted += 1
+        print(f"✔️ Inserted: {article['title'][:50]}...")
+
     return inserted
