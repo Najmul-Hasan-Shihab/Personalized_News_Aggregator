@@ -1,0 +1,91 @@
+.newest-list {
+  background-color: #f8fafc;
+  padding: 2rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  margin-top: 2rem;
+}
+
+.newest-list__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 1.5rem;
+  color: #0f172a;
+  border-left: 4px solid #38bdf8;
+  padding-left: 0.75rem;
+}
+
+.newest-list__items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* 📰 Card layout */
+.newest-list__card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: white;
+  border-radius: 12px;
+  text-decoration: none;
+  padding: 1rem;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  border-left: 4px solid transparent;
+  color: inherit;
+}
+
+.newest-list__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+  border-left: 4px solid #38bdf8;
+}
+
+.newest-list__image {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+/* 📃 Content */
+.newest-list__content {
+  flex: 1;
+}
+
+.newest-list__headline {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.4rem 0;
+  color: #0f172a;
+  line-height: 1.4;
+}
+
+.newest-list__summary {
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.5;
+  margin-bottom: 0.4rem;
+}
+
+.newest-list__date {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* 📱 Responsive */
+@media (max-width: 640px) {
+  .newest-list__card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .newest-list__image {
+    width: 100%;
+    height: 160px;
+  }
+}
