@@ -2,7 +2,7 @@ import React from "react";
 import "./NewsCard.css";
 import { formatDate } from "../../utils/formatDate";
 
-const NewsCard = ({ title, image, source, date, author }) => {
+const NewsCard = ({ title, image, source, date, author, summary, link }) => {
   return (
     <article className="news-card" role="article">
       <div className="news-card__header">
@@ -16,7 +16,7 @@ const NewsCard = ({ title, image, source, date, author }) => {
       <h2 className="news-card__title">{title}</h2>
 
       <p className="news-card__summary">
-        🤖 <strong>AI Summary:</strong> A groundbreaking discovery in renewable energy shows promise for global sustainability. Experts say the breakthrough could reshape global energy strategies and reduce dependency on fossil fuels.
+        🤖 <strong>AI Summary:</strong> {summary || "No summary available."}
       </p>
 
       <img
@@ -27,7 +27,7 @@ const NewsCard = ({ title, image, source, date, author }) => {
 
       <div className="news-card__footer">
         <span className="news-card__author">By {author}</span>
-        <a href="/news/123" className="news-card__read-more">
+        <a href={link || "#"} className="news-card__read-more" target="_blank" rel="noopener noreferrer">
           Read More →
         </a>
       </div>

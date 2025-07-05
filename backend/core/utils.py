@@ -2,6 +2,7 @@ from datetime import datetime
 from .ai_tasks.summarize import generate_summary
 from .ai_tasks.sentiment import analyze_sentiment
 from .ai_tasks.ner import extract_entities
+from .ai_tasks.classify_category import predict_category,CATEGORY_LABELS
 from .news_sources.newsapi import fetch_from_newsapi
 from .news_sources.gnews import fetch_from_gnews
 from .news_sources.mediastack import fetch_from_mediastack
@@ -49,6 +50,13 @@ def aggregate_and_store_articles():
             print(f"⚠️ NER failed: {e}")
             article["entities"] = []
 
+        # Determine final category
+        source_category = article.get("category", "general").lower()
+
+        if source_category != "general" and source_category in CATEGORY_LABELS:
+            article["category"] = source_category
+        else:
+            article["category"] = predict_category(article["title"], content, fallback_label="general")
 
         # Timestamp for tracking
         article["ingested_at"] = datetime.utcnow()
