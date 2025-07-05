@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./Home.css";
 
 import Header from "../components/Header/Header";
@@ -8,54 +9,37 @@ import SponsoredCard from "../components/SponsoredCard/SponsoredCard";
 import NewestList from "../components/NewestList/NewestList";
 import LoadMoreButton from "../components/LoadMoreButton/LoadMoreButton";
 import Footer from "../components/Footer/Footer";
-// import { CategoryGrid } from "../components/CategoryCard/CategoryCard";
 
 const Home = () => {
-  const [news, setNews] = useState([
-    {
-      id: 1,
-      title: "AI Breakthrough in 2025",
-      description: "A new AI model breaks benchmark records.",
-      image: "https://via.placeholder.com/600x300",
-      source: "The Verge",
-      date: "2025-07-01",
-      author: "Jane Doe",
-    },
-    {
-      id: 2,
-      title: "Climate Summit Highlights",
-      description: "Key takeaways from the latest global conference.",
-      image: "https://via.placeholder.com/600x300",
-      source: "BBC",
-      date: "2025-06-30",
-      author: "John Smith",
-    },
-  ]);
+  const [news, setNews] = useState([]);
+  const [displayCount, setDisplayCount] = useState(10);
 
-  const latestPosts = [
-    { id: 101, title: "Meta unveils AI glasses", link: "#", date: "2025-06-28" },
-    { id: 102, title: "Nobel winners announced", link: "#", date: "2025-06-27" },
-  ];
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/articles/");
+        const sorted = response.data.sort((a, b) => new Date(b.publishedAt || b.ingested_at) - new Date(a.publishedAt || a.ingested_at));
+        setNews(sorted);
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+      }
+    };
+
+    fetchNews();
+  }, []);
 
   const loadMore = () => {
-    setNews((prev) => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        title: "More News",
-        description: "Additional article loaded.",
-        image: "https://via.placeholder.com/600x300",
-        source: "Reuters",
-        date: "2025-07-01",
-        author: "Guest Writer",
-      },
-    ]);
+    setDisplayCount((prev) => prev + 5);
   };
 
-  /*const handleCategoryClick = (category) => {
-    console.log("Category clicked:", category);
-    // You can fetch/filter news by category here
-  };*/
+  const latestPosts = news.slice(0, 5).map((item, i) => ({
+    id: i,
+    title: item.title,
+    link: item.url || "#",
+    date: item.publishedAt || item.ingested_at || item.date,
+    image: item.image || item.urlToImage,
+    summary: item.summary || "No summary available.",
+  }));
 
   return (
     <>
@@ -67,10 +51,18 @@ const Home = () => {
         </aside>
 
         <section className="home__main-content">
-          {/* Removed categories section */}
           <div className="home__news-grid">
-            {news.map((item) => (
-              <NewsCard key={item.id} {...item} />
+            {news.slice(5, displayCount).map((item, index) => (
+              <NewsCard
+                key={index}
+                title={item.title}
+                image={item.image || item.urlToImage}
+                source={item.source}
+                date={item.publishedAt || item.ingested_at}
+                author={item.author || "Unknown"}
+                summary={item.summary}
+                link={item.url}
+              />
             ))}
           </div>
 
@@ -78,12 +70,12 @@ const Home = () => {
         </section>
 
         <aside className="home__rightbar">
+          <NewestList posts={latestPosts} />
           <SponsoredCard
             title="Upgrade to Premium!"
             company="Echorithm Ads"
             image="https://via.placeholder.com/600x200"
           />
-          <NewestList posts={latestPosts} />
         </aside>
       </main>
 

@@ -8,9 +8,8 @@ const NewestList = ({ posts }) => {
       <ul className="newest-list__items">
         {posts.map((post) => (
           <li key={post.id} className="newest-list__item">
-            <a href={post.link} className="newest-list__card" aria-label={post.title}>
+            <a href={post.link} className="newest-list__card" aria-label={post.title} target="_blank" rel="noopener noreferrer">
               <img src={post.image} alt={post.title} className="newest-list__image" />
-
               <div className="newest-list__content">
                 <h3 className="newest-list__headline">{post.title}</h3>
                 <p className="newest-list__summary">{post.summary}</p>
