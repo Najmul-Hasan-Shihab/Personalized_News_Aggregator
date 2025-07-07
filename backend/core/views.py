@@ -31,6 +31,7 @@ def register_user(request):
             'access': str(refresh.access_token),
             'username': user.username
         })
+    print(serializer.errors)  # 👈🏽 Add this line to see exactly what's wrong
     return Response(serializer.errors, status=400)
 
 

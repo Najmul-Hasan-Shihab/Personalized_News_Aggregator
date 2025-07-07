@@ -1,7 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // If you're using react-router
 import "./Header.css";
 
+
 const Header = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    setIsLoggedIn(false);
+    navigate("/auth"); // or navigate to login page
+  };
+
   return (
     <header className="header" role="banner">
       <div className="header__container">
@@ -11,7 +28,7 @@ const Header = () => {
 
         <nav className="header__nav" aria-label="Main Navigation">
           <ul className="header__nav-list">
-            <li><a href="#home">Home</a></li>
+            <li><a href="/">Home</a></li>
             <li><a href="#foryou">For You</a></li>
             <li><a href="#following">Following</a></li>
           </ul>
@@ -25,8 +42,20 @@ const Header = () => {
             aria-label="Search"
           />
           <div className="header__buttons">
-            <button className="btn btn--outline">Login</button>
-            <button className="btn btn--filled">Sign Up</button>
+            {isLoggedIn ? (
+              <button className="btn btn--outline" onClick={handleLogout}>
+                Logout
+              </button>
+            ) : (
+              <>
+                <button className="btn btn--outline" onClick={() => navigate("/auth")}>
+                  Login
+                </button>
+                <button className="btn btn--filled" onClick={() => navigate("/auth")}>
+                  Sign Up
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
