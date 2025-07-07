@@ -1,0 +1,63 @@
+body{
+    font-family: 'Roboto Condensed', sans-serif;
+}
+.banner-container{
+    background-color: rgb(132, 42, 215);
+}
+.banner-column{
+    background-color: rgb(139, 91, 191);
+}
+.navbar-container{
+    top: 0;
+    background-color: rgb(44, 42, 48);
+    position: sticky;
+    z-index: 2;
+}
+.about-container{
+    background-color: rgb(139, 91, 191);
+}
+.education-container{
+    background-color: rgb(139, 91, 191);
+}
+.mycolor1{
+    color: #FB758F;
+}
+.mycolor{
+    background-color:  #FB758F;
+}
+.mycolor:hover{
+    color:  #000000!important;
+}
+.circle{
+    background-color: #FB758F;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+}
+.project-container{
+    background-color: rgb(139, 91, 191);
+}
+.portfolio-container{
+    background-color: rgb(139, 91, 191);
+}
+.form-container{
+    background-color: rgb(43, 42, 43);
+}
+.inner-form{
+    background-color: rgb(43, 42, 43);
+
+}
+.footer{
+    background-color: #52d8fd;
+}
+.circle2{
+    top: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: inline-block;
+    background-color: white;
+    font-size: 40px;
+    text-align: center;
+    color: rgb(82, 216, 253);
+}
