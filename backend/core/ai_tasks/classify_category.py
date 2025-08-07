@@ -1,9 +1,9 @@
 from transformers import pipeline
 
-# Initialize zero-shot classifier (once)
+# Initialize zero-shot classifier
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
 
-# Define your category labels
+# category labels
 CATEGORY_LABELS = [
     "technology", "business", "health", "sports", "entertainment", "science", "politics", "travel", "environment"
 ]
@@ -15,7 +15,7 @@ def predict_category(title, content, fallback_label="general"):
         top_label = result["labels"][0]
         confidence = result["scores"][0]
 
-        if confidence > 0.5:  # optional confidence threshold
+        if confidence > 0.5:  # confidence threshold
             return top_label
         else:
             return fallback_label

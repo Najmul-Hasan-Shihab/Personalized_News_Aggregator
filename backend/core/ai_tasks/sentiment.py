@@ -3,7 +3,7 @@ import torch
 import torch.nn.functional as F
 
 # Model and tokenizer
-model_name = "cardiffnlp/twitter-roberta-base-sentiment-latest"  # You can switch back to "twitter-roberta-base-sentiment" if needed
+model_name = "cardiffnlp/twitter-roberta-base-sentiment-latest"  
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 

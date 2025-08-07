@@ -19,7 +19,7 @@ def truncate_text(text, max_tokens=1024):
 def generate_summary(text, use_fallback=False):
     if not text or len(text.split()) < 30:
         print("Skipped short article.")
-        return ""  # Skip very short or empty articles
+        return ""
 
     try:
         truncated_text = truncate_text(text)

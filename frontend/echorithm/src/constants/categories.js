@@ -1,13 +1,12 @@
 export const CATEGORIES = [
-  "Bangladesh",
   "Technology",
   "Science",
   "Health",
-  "World",
-  "Education",
+  "Travel",
   "Entertainment",
   "Sports",
   "Business",
   "Politics",
   "Environment",
+  "General",
 ];
