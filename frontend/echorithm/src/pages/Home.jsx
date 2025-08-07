@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Home.css";
 
-import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar/Sidebar";
 import NewsCard from "../components/NewsCard/NewsCard";
 import SponsoredCard from "../components/SponsoredCard/SponsoredCard";
@@ -60,7 +59,7 @@ const Home = () => {
 
   return (
     <>
-      <Header />
+      {/* ✅ Header removed here */}
 
       <main className="home">
         <aside className="home__sidebar">
