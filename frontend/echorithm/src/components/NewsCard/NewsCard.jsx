@@ -16,7 +16,7 @@ const NewsCard = ({ title, image, source, date, author, summary, link }) => {
       <h2 className="news-card__title">{title}</h2>
 
       <p className="news-card__summary">
-        🤖 <strong>AI Summary:</strong> {summary || "No summary available."}
+        🤖 <strong>Summary:</strong> {summary || "No summary available."}
       </p>
 
       <img

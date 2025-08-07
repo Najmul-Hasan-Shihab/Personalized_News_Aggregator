@@ -13,12 +13,17 @@ import Footer from "../components/Footer/Footer";
 const Home = () => {
   const [news, setNews] = useState([]);
   const [displayCount, setDisplayCount] = useState(10);
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     const fetchNews = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/articles/");
-        const sorted = response.data.sort((a, b) => new Date(b.publishedAt || b.ingested_at) - new Date(a.publishedAt || a.ingested_at));
+        const sorted = response.data.sort(
+          (a, b) =>
+            new Date(b.publishedAt || b.ingested_at) -
+            new Date(a.publishedAt || a.ingested_at)
+        );
         setNews(sorted);
       } catch (error) {
         console.error("Error fetching articles:", error);
@@ -28,11 +33,24 @@ const Home = () => {
     fetchNews();
   }, []);
 
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+    setDisplayCount(10);
+  };
+
+  const filteredNews =
+    selectedCategory === "All"
+      ? news
+      : news.filter(
+          (item) =>
+            item.category?.toLowerCase() === selectedCategory.toLowerCase()
+        );
+
   const loadMore = () => {
     setDisplayCount((prev) => prev + 5);
   };
 
-  const latestPosts = news.slice(0, 5).map((item, i) => ({
+  const latestPosts = filteredNews.slice(0, 5).map((item, i) => ({
     id: i,
     title: item.title,
     link: item.url || "#",
@@ -47,12 +65,12 @@ const Home = () => {
 
       <main className="home">
         <aside className="home__sidebar">
-          <Sidebar />
+          <Sidebar onCategoryClick={handleCategoryClick} />
         </aside>
 
         <section className="home__main-content">
           <div className="home__news-grid">
-            {news.slice(5, displayCount).map((item, index) => (
+            {filteredNews.slice(5, displayCount).map((item, index) => (
               <NewsCard
                 key={index}
                 title={item.title}

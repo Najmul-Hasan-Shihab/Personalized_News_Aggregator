@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import AuthPage from "./components/Auth/AuthPage"; // Make sure this component exists
+import AuthPage from "./components/Auth/AuthPage";
 import "./App.css";
 
 const App = () => {
