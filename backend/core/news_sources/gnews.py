@@ -16,4 +16,4 @@ def fetch_from_gnews():
         "publishedAt": a.get("publishedAt", ""),
         "content": a.get("content", ""),
         "category": "general"
-    } for a in data.get("articles", [])]
+    } for a in data.get("articles", []) if a.get("image") or a.get("urlToImage")]

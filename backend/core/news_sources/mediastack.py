@@ -16,4 +16,4 @@ def fetch_from_mediastack():
         "publishedAt": a["published_at"],
         "content": a.get("description", ""),
         "category": a.get("category", "general")
-    } for a in data.get("data", [])]
+    } for a in data.get("articles", []) if a.get("image") or a.get("urlToImage")]
