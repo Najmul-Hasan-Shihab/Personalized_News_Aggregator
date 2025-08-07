@@ -20,10 +20,9 @@ const Home = () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/articles/");
         const sorted = response.data.sort(
-          (a, b) =>
-            new Date(b.publishedAt || b.ingested_at) -
-            new Date(a.publishedAt || a.ingested_at)
+          (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt)
         );
+
         setNews(sorted);
       } catch (error) {
         console.error("Error fetching articles:", error);
