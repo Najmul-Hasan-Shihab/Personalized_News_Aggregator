@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import "./Home.css";
 
-import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar/Sidebar";
 import NewsCard from "../components/NewsCard/NewsCard";
 import SponsoredCard from "../components/SponsoredCard/SponsoredCard";
 import NewestList from "../components/NewestList/NewestList";
 import LoadMoreButton from "../components/LoadMoreButton/LoadMoreButton";
 import Footer from "../components/Footer/Footer";
-// import { CategoryGrid } from "../components/CategoryCard/CategoryCard";
 
 const Home = () => {
   const [news, setNews] = useState([
@@ -52,14 +50,9 @@ const Home = () => {
     ]);
   };
 
-  /*const handleCategoryClick = (category) => {
-    console.log("Category clicked:", category);
-    // You can fetch/filter news by category here
-  };*/
-
   return (
     <>
-      <Header />
+      {/* ✅ Header removed here */}
 
       <main className="home">
         <aside className="home__sidebar">
@@ -67,7 +60,6 @@ const Home = () => {
         </aside>
 
         <section className="home__main-content">
-          {/* Removed categories section */}
           <div className="home__news-grid">
             {news.map((item) => (
               <NewsCard key={item.id} {...item} />
