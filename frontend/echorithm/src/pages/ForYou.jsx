@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar/Sidebar";
 import SponsoredCard from "../components/SponsoredCard/SponsoredCard";
 import NewestList from "../components/NewestList/NewestList";
@@ -6,97 +6,144 @@ import Footer from "../components/Footer/Footer";
 import "./ForYou.css";
 
 const ForYou = () => {
-    const initialNews = [
-        {
-            id: 1,
-            tag: "AI",
-            title: "AI Breakthrough in 2025",
-            summary: "A new AI model achieves record-breaking accuracy in medical diagnoses.",
-            image: "https://via.placeholder.com/600x300",
-            source: "The Verge",
-            date: "1 Jul 2025",
-        },
-        {
-            id: 2,
-            tag: "Climate",
-            title: "Extreme Weather Events Explained",
-            summary: "Scientists link climate change to more frequent extreme weather.",
-            image: "https://via.placeholder.com/600x300",
-            source: "BBC",
-            date: "30 Jun 2025",
-        },
-    ];
+  const [newsList, setNewsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const [newsList, setNewsList] = useState(initialNews);
-    const [loading, setLoading] = useState(false);
+  // ✅ Fetch personalized articles on mount
+  useEffect(() => {
+    const fetchPersonalizedArticles = async () => {
+        let token = localStorage.getItem("access_token");
+        const refresh = localStorage.getItem("refresh_token");
 
-    const loadMore = () => {
-        setLoading(true);
+        const tryFetch = async (accessToken) => {
+            const res = await fetch("http://localhost:8000/articles/filtered/", {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+            });
 
-        // Simulate API delay
-        setTimeout(() => {
-            const newItem = {
-                id: newsList.length + 1,
-                tag: "Tech",
-                title: "New Tech Revolution 2025",
-                summary: "Startups are driving innovation in consumer robotics.",
-                image: "https://via.placeholder.com/600x300",
-                source: "TechCrunch",
-                date: "2 Jul 2025",
-            };
+            if (res.status === 401) {
+            console.warn("Access token invalid or expired.");
+            return null;
+            }
 
-            setNewsList((prev) => [...prev, newItem]);
-            setLoading(false);
-        }, 1000);
-    };
+            const data = await res.json();
+            return data;
+        };
 
-    return (
-        <>
-            <main className="foryou">
-                <aside className="foryou__sidebar">
-                    <Sidebar />
-                </aside>
+        let data = await tryFetch(token);
 
-                <section className="foryou__main-content">
-                    <h2 className="section-title">🔍 Personalized for You</h2>
-                    <div className="foryou__news-grid">
-                        {newsList.map((item) => (
-                            <div className="foryou-card" key={item.id}>
-                                <span className="foryou-tag">Based on your interest in {item.tag}</span>
-                                <h3>{item.title}</h3>
-                                <p>{item.summary}</p>
-                                <img src={item.image} alt={item.title} />
-                                <div className="foryou-meta">
-                                    <span>{item.source}</span>
-                                    <span>{item.date}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+        // 🔄 If token is expired, try refreshing
+        if (!data || data.code === "token_not_valid") {
+            console.log("⏳ Refreshing token...");
+            const res = await fetch("http://localhost:8000/token/refresh/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ refresh }),
+            });
 
-                    {/* 👇 Load More Button */}
-                    <button
-                        className="foryou__load-more"
-                        onClick={loadMore}
-                        disabled={loading}
-                    >
-                        {loading ? <span className="loader"></span> : "Load More"}
-                    </button>
-                </section>
+            if (res.ok) {
+            const tokens = await res.json();
+            localStorage.setItem("access_token", tokens.access); // Save new access token
+            token = tokens.access;
 
-                <aside className="foryou__rightbar">
-                    <SponsoredCard
-                        title="Smarter Investing with AI"
-                        company="FinTech Pro"
-                        image="https://via.placeholder.com/600x200"
-                    />
-                    <NewestList posts={[]} />
-                </aside>
-            </main>
+            data = await tryFetch(token); // Retry fetching articles
+            } else {
+            console.error("❌ Refresh token is invalid. Please log in again.");
+            return;
+            }
+        }
 
-            <Footer />
-        </>
-    );
+        if (data && data.articles) {
+            setNewsList(data.articles);
+        } else {
+            console.warn("No personalized articles found.");
+        }
+
+        setLoading(false);
+        };
+
+
+    fetchPersonalizedArticles();
+  }, []);
+
+  // Optional: Simulate "Load More" with placeholder articles (or enhance later)
+  const loadMore = () => {
+    setLoading(true);
+
+    setTimeout(() => {
+      const newItem = {
+        id: newsList.length + 1,
+        tag: "Innovation",
+        title: "New Tech Revolution 2025",
+        summary: "Startups are driving innovation in consumer robotics.",
+        image: "https://via.placeholder.com/600x300",
+        source: "TechCrunch",
+        date: "8 Aug 2025"
+      };
+
+      setNewsList((prev) => [...prev, newItem]);
+      setLoading(false);
+    }, 1000);
+  };
+
+  return (
+    <>
+      <main className="foryou">
+        <aside className="foryou__sidebar">
+          <Sidebar />
+        </aside>
+
+        <section className="foryou__main-content">
+          <h2 className="section-title">🔍 Personalized for You</h2>
+
+          {loading ? (
+            <p>Loading personalized articles...</p>
+          ) : newsList.length === 0 ? (
+            <p>No articles found for your preferences. Try updating them in your profile.</p>
+          ) : (
+            <div className="foryou__news-grid">
+              {newsList.map((item, index) => (
+                <div className="foryou-card" key={index}>
+                  <span className="foryou-tag">
+                    Based on your interest in {item.category || "General"}
+                  </span>
+                  <h3>{item.title}</h3>
+                  <p>{item.summary}</p>
+                  <img src={item.image || "https://via.placeholder.com/600x300"} alt={item.title} />
+                  <div className="foryou-meta">
+                    <span>{item.source}</span>
+                    <span>{item.date}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            className="foryou__load-more"
+            onClick={loadMore}
+            disabled={loading}
+          >
+            {loading ? <span className="loader"></span> : "Load More"}
+          </button>
+        </section>
+
+        <aside className="foryou__rightbar">
+          <SponsoredCard
+            title="Smarter Investing with AI"
+            company="FinTech Pro"
+            image="https://via.placeholder.com/600x200"
+          />
+          <NewestList posts={[]} />
+        </aside>
+      </main>
+
+      <Footer />
+    </>
+  );
 };
 
 export default ForYou;

@@ -81,3 +81,34 @@
 .news-card__read-more:hover {
   background-color: #556cd6;
 }
+
+.news-card__sentiment {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.news-card__entities {
+  margin: 10px 0;
+}
+
+.news-card__entity-chip {
+  display: inline-block;
+  background-color: #e0e0e0;
+  color: #333;
+  padding: 4px 8px;
+  margin: 4px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.news-card__entity-chip:hover {
+  background-color: #ccc;
+}
+

@@ -19,7 +19,9 @@ const Home = () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/articles/");
         const sorted = response.data.sort(
-          (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt)
+          (a, b) =>
+            new Date(b.ingested_at || b.publishedAt) -
+            new Date(a.ingested_at || a.publishedAt)
         );
 
         setNews(sorted);
@@ -78,6 +80,9 @@ const Home = () => {
                 author={item.author || "Unknown"}
                 summary={item.summary}
                 link={item.url}
+                sentiment_label={item.sentiment_label} // ✅ new
+                sentiment_confidence={item.sentiment_confidence} // ✅ new
+                entities={item.entities || []} // ✅ new
               />
             ))}
           </div>

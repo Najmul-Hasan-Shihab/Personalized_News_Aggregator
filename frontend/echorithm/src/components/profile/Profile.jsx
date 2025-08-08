@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
 import "./profile.css";
 
-const initialUser = {
-  name: "John Doe",
-  email: "john@example.com",
-  contact: "+1234567890",
-  school: "Greenwood High School",
-  college: "City College",
-  university: "State University",
-  work: "Software Developer at OpenAI",
-  bio: "News lover & open-source contributor.",
+const blankUser = {
+  name: "",
+  email: "",
+  contact: "",
+  school: "",
+  college: "",
+  university: "",
+  work: "",
+  bio: "",
   profilePic: "https://via.placeholder.com/120",
   coverPic: "https://via.placeholder.com/800x200"
 };
+
+
 
 const userPosts = [
   { id: 1, content: "My first post on Echorithm!", date: "Aug 5, 2025" },
@@ -32,14 +34,59 @@ const allCategories = ["Technology",
 ];
 
 const Profile = () => {
-  const [user, setUser] = useState(initialUser);
+  const [user, setUser] = useState(blankUser);
+  const [editData, setEditData] = useState(blankUser);
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ ...initialUser });
   const [selectedCategories, setSelectedCategories] = useState([]);
 
+  const uploadImage = async (file, type) => {
+    const token = localStorage.getItem("access_token");
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("type", type);
+
+    const res = await fetch("http://localhost:8000/user/image/upload/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    const data = await res.json();
+    if (data.url) {
+      setUser((prev) => ({ ...prev, [type]: data.url }));
+      setEditData((prev) => ({ ...prev, [type]: data.url }));
+    }
+  };
+
+
+  const fetchUserInfo = async () => {
+      const token = localStorage.getItem("access_token");
+      try {
+        const res = await fetch("http://localhost:8000/user/info/", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (!res.ok) {
+      const text = await res.text(); // get raw HTML or error
+      console.error("User info fetch failed:", res.status, text);
+      return;
+    }
+        const data = await res.json();
+        if (data.name) {
+          setUser(data);
+          setEditData(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user info", err);
+      }
+    };
   useEffect(() => {
+    fetchUserInfo();
     const fetchPreferences = async () => {
-      const token = localStorage.getItem("access");
+      const token = localStorage.getItem("access_token");
       try {
         const res = await fetch("http://localhost:8000/preferences/", {
           headers: {
@@ -61,19 +108,16 @@ const Profile = () => {
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e, type) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUser((prev) => ({ ...prev, [type]: reader.result }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+    const handleImageChange = (e, type) => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadImage(file, type);
+      }
+    };
+
 
   const handleSavePreferences = async () => {
-    const token = localStorage.getItem("access");
+    const token = localStorage.getItem("access_token");
     try {
       await fetch("http://localhost:8000/preferences/update/", {
         method: "POST",
@@ -88,16 +132,31 @@ const Profile = () => {
     }
   };
 
-  const handleSave = async () => {
-    setUser(editData);
+    const handleSave = async () => {
+    console.log("Saving user info:", editData);
+    const token = localStorage.getItem("access_token");
+    await fetch("http://localhost:8000/user/info/save/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(editData) // Now includes images in Base64
+    });
     await handleSavePreferences();
+    await fetchUserInfo();
     setIsEditing(false);
   };
+
+
+  const backendURL = "http://localhost:8000"; // or use env variable
+  const coverImageUrl = user.coverPic ? `${backendURL}${user.coverPic}` : "/placeholder-cover.jpg";
+  const profileImageUrl = user.profilePic ? `${backendURL}${user.profilePic}` : "/placeholder-profile.jpg";
 
   return (
     <div className="user-profile">
       <div className="cover-image">
-        <img src={user.coverPic} alt="Cover" />
+        <img src={coverImageUrl} alt="Cover" />
         <label className="edit-image-btn">
           📷
           <input
@@ -106,23 +165,25 @@ const Profile = () => {
             onChange={(e) => handleImageChange(e, "coverPic")}
           />
         </label>
-      </div>
+    </div>
+
 
       <div className="profile-info">
-        <div className="profile-pic-wrapper">
-          <img className="profile-pic" src={user.profilePic} alt="Profile" />
-          <label className="edit-image-btn profile-btn">
-            📷
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleImageChange(e, "profilePic")}
-            />
-          </label>
-        </div>
-        <h2>{user.name}</h2>
-        <p>{user.bio}</p>
+      <div className="profile-pic-wrapper">
+        <img className="profile-pic" src={profileImageUrl} alt="Profile" />
+        <label className="edit-image-btn profile-btn">
+          📷
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleImageChange(e, "profilePic")}
+          />
+        </label>
       </div>
+      <h2>{user.name}</h2>
+      <p>{user.bio}</p>
+    </div>
+
 
       <div className="profile-layout">
         <div className="intro-section">
