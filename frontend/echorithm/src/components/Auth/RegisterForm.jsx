@@ -1,103 +1,99 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "./AuthPage.css";
 
 const RegisterForm = ({ onSwitch }) => {
-    const [formData, setFormData] = useState({
-        username: "",
-        password: ""
-    });
-    const [agree, setAgree] = useState(false);
-    const [error, setError] = useState("");
+  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [agree, setAgree] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleChange = (e) => {
-        const { id, value } = e.target;
-        setFormData((prev) => ({ ...prev, [id]: value }));
-    };
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((p) => ({ ...p, [id]: value }));
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!agree) {
+      setError("❌ You must agree to the terms.");
+      return;
+    }
+    try {
+      await axios.post("http://127.0.0.1:8000/register/", formData, {
+        headers: { "Content-Type": "application/json" },
+      });
+      alert("✅ Registration successful!");
+      onSwitch();
+    } catch (err) {
+      console.error(err);
+      setError("❌ Something went wrong. Try again.");
+    }
+  };
 
-        if (!agree) {
-            setError("❌ You must agree to the terms.");
-            return;
-        }
+  return (
+    <div>
+      <div className="auth-header">
+        <h2>Create Account</h2>
+        <button
+          type="button"
+          className="close-btn"
+          aria-label="Close"
+          onClick={() => (window.location.href = "/")}
+        >
+          &times;
+        </button>
+      </div>
 
-        try {
-            await axios.post("http://127.0.0.1:8000/register/", formData, {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
-            alert("✅ Registration successful!");
-            onSwitch(); // Navigate to login form
-        } catch (err) {
-            console.error("Registration failed:", err);
-            setError("❌ Something went wrong. Try again.");
-        }
-    };
+      <form className="auth-form" onSubmit={handleSubmit} noValidate>
+        <div className="form-group">
+          <input
+            id="username"
+            type="text"
+            placeholder="Username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-    return (
-        <>
-            <h2>Register_</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <input
-                        type="text"
-                        id="username"
-                        placeholder="USERNAME"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+        <div className="form-group">
+          <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-                <div className="form-group">
-                    <input
-                        type="password"
-                        id="password"
-                        placeholder="PASSWORD"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+        <div className="checkbox-group">
+          <label htmlFor="terms">
+            <input
+              id="terms"
+              type="checkbox"
+              checked={agree}
+              onChange={(e) => setAgree(e.target.checked)}
+            />
+            <span>
+              I agree to the <a href="#">Terms &amp; Conditions</a> and confirm I am over 18.
+            </span>
+          </label>
+        </div>
 
-                <div className="checkbox-group">
-                    <input
-                        type="checkbox"
-                        id="terms"
-                        checked={agree}
-                        onChange={(e) => setAgree(e.target.checked)}
-                    />
-                    <label htmlFor="terms">
-                        By clicking you agree to our{" "}
-                        <a href="#">terms & conditions</a> and confirm that you are over 18.
-                    </label>
-                </div>
+        <button type="submit" className="auth-btn">Open Account</button>
 
-                <div className="form-footer">
-                    <a href="#" onClick={onSwitch}>
-                        Already have an account? Sign In
-                    </a>
-                    <button
-                        type="submit"
-                        className="mycolor"
-                        style={{
-                            padding: "10px 20px",
-                            border: "none",
-                            color: "white",
-                            cursor: "pointer"
-                        }}
-                    >
-                        OPEN ACCOUNT
-                    </button>
-                </div>
+        <div className="auth-footer">
+          <a href="#" onClick={(e) => { e.preventDefault(); onSwitch(); }}>
+            Already have an account? Sign In
+          </a>
+        </div>
 
-                {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
-            </form>
-        </>
-    );
+        {error && <p className="error-message" role="alert">{error}</p>}
+      </form>
+    </div>
+  );
 };
 
 export default RegisterForm;

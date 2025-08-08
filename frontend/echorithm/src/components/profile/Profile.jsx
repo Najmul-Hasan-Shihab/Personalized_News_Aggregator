@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./profile.css";
 
 const initialUser = {
@@ -19,19 +19,46 @@ const userPosts = [
   { id: 2, content: "Exploring the new editor!", date: "Aug 6, 2025" }
 ];
 
+const allCategories = ["Technology",
+  "Science",
+  "Health",
+  "Travel",
+  "Entertainment",
+  "Sports",
+  "Business",
+  "Politics",
+  "Environment",
+  "General",
+];
+
 const Profile = () => {
   const [user, setUser] = useState(initialUser);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ ...initialUser });
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      const token = localStorage.getItem("access");
+      try {
+        const res = await fetch("http://localhost:8000/preferences/", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+        setSelectedCategories(data.categories || []);
+      } catch (err) {
+        console.error("Failed to fetch preferences", err);
+      }
+    };
+
+    fetchPreferences();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSave = () => {
-    setUser(editData);
-    setIsEditing(false);
   };
 
   const handleImageChange = (e, type) => {
@@ -43,6 +70,28 @@ const Profile = () => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleSavePreferences = async () => {
+    const token = localStorage.getItem("access");
+    try {
+      await fetch("http://localhost:8000/preferences/update/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ categories: selectedCategories })
+      });
+    } catch (err) {
+      console.error("Error saving preferences", err);
+    }
+  };
+
+  const handleSave = async () => {
+    setUser(editData);
+    await handleSavePreferences();
+    setIsEditing(false);
   };
 
   return (
@@ -86,6 +135,16 @@ const Profile = () => {
             <li><strong>University:</strong> {user.university}</li>
             <li><strong>Work:</strong> {user.work}</li>
           </ul>
+          <div className="preferences">
+            <h4>Your Preferences</h4>
+            <ul>
+              {selectedCategories.length > 0 ? (
+                selectedCategories.map((cat) => <li key={cat}>{cat}</li>)
+              ) : (
+                <li>No preferences selected</li>
+              )}
+            </ul>
+          </div>
           <button className="edit-btn" onClick={() => setIsEditing(true)}>Edit Info</button>
         </div>
 
@@ -115,6 +174,29 @@ const Profile = () => {
             <input type="text" name="university" value={editData.university} onChange={handleChange} placeholder="University" />
             <input type="text" name="work" value={editData.work} onChange={handleChange} placeholder="Work" />
             <textarea name="bio" value={editData.bio} onChange={handleChange} placeholder="Short bio..." rows="3" />
+
+            <div className="category-selection">
+              <h4>Select Your Interests</h4>
+              {allCategories.map((cat) => (
+                <label key={cat}>
+                  <input
+                    type="checkbox"
+                    value={cat}
+                    checked={selectedCategories.includes(cat)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSelectedCategories((prev) =>
+                        prev.includes(value)
+                          ? prev.filter((c) => c !== value)
+                          : [...prev, value]
+                      );
+                    }}
+                  />
+                  {cat}
+                </label>
+              ))}
+            </div>
+
             <div className="edit-buttons">
               <button type="submit">Save</button>
               <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
