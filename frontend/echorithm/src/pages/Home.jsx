@@ -3,7 +3,6 @@ import axios from "axios";
 import "./Home.css";
 
 import Sidebar from "../components/Sidebar/Sidebar";
-import NewsCard from "../components/NewsCard/NewsCard";
 import SponsoredCard from "../components/SponsoredCard/SponsoredCard";
 import NewestList from "../components/NewestList/NewestList";
 import LoadMoreButton from "../components/LoadMoreButton/LoadMoreButton";
@@ -14,6 +13,25 @@ const Home = () => {
   const [displayCount, setDisplayCount] = useState(10);
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const templateNews = [
+    {
+      title: "AI Breakthrough in Renewable Energy",
+      aiSummary:
+        "AI system optimizes solar energy capture, potentially doubling efficiency.",
+      url: "#",
+      posScore: 12,
+      negScore: 2,
+    },
+    {
+      title: "Global Markets Surge After Policy Announcement",
+      aiSummary:
+        "New central bank policy boosts investor confidence, sparking a market rally.",
+      url: "#",
+      posScore: 20,
+      negScore: 5,
+    },
+  ];
+
   useEffect(() => {
     const fetchNews = async () => {
       try {
@@ -21,10 +39,10 @@ const Home = () => {
         const sorted = response.data.sort(
           (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt)
         );
-
-        setNews(sorted);
+        setNews(sorted.length > 0 ? sorted : templateNews);
       } catch (error) {
         console.error("Error fetching articles:", error);
+        setNews(templateNews);
       }
     };
 
@@ -53,38 +71,43 @@ const Home = () => {
     title: item.title,
     link: item.url || "#",
     date: item.publishedAt || item.ingested_at || item.date,
-    image: item.image || item.urlToImage,
-    summary: item.summary || "No summary available.",
   }));
 
   return (
     <>
-      {/* ✅ Header removed here */}
-
       <main className="home">
+        {/* Left Sidebar */}
         <aside className="home__sidebar">
           <Sidebar onCategoryClick={handleCategoryClick} />
         </aside>
 
+        {/* Main News Section */}
         <section className="home__main-content">
           <div className="home__news-grid">
-            {filteredNews.slice(5, displayCount).map((item, index) => (
-              <NewsCard
+            {filteredNews.slice(0, displayCount).map((item, index) => (
+              <a
                 key={index}
-                title={item.title}
-                image={item.image || item.urlToImage}
-                source={item.source}
-                date={item.publishedAt || item.ingested_at}
-                author={item.author || "Unknown"}
-                summary={item.summary}
-                link={item.url}
-              />
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="news-card"
+              >
+                <div className="reaction-top-right">
+                  <button className="happy-btn">😀 {item.posScore || 0}</button>
+                  <button className="sad-btn">😞 {item.negScore || 0}</button>
+                </div>
+                <h3 className="news-title">{item.title}</h3>
+                {item.aiSummary && (
+                  <p className="ai-summary">{item.aiSummary}</p>
+                )}
+              </a>
             ))}
           </div>
 
           <LoadMoreButton onClick={loadMore} loading={false} />
         </section>
 
+        {/* Right Sidebar */}
         <aside className="home__rightbar">
           <NewestList posts={latestPosts} />
           <SponsoredCard

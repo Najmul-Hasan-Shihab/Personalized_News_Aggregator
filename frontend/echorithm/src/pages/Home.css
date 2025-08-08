@@ -1,60 +1,133 @@
-/* Layout container */
+/* ==== MAIN LAYOUT ==== */
 .home {
-  display: grid;
-  grid-template-columns: 20% 45% 35%;
-  gap: 1rem;
-  max-width: 100vw;
+  display: flex;
   margin: 0 auto;
-  padding: 1rem;
-  box-sizing: border-box;
+  padding: 20px 0;
+  width: 86%;
+  gap: 20px;
+  align-items: flex-start;
 }
 
-/* Sidebar */
+/* Columns */
 .home__sidebar {
-  padding: 0.5rem;
-  height: 100%;
-  box-sizing: border-box;
+  flex: 0 0 16%;
 }
 
-/* Main content */
 .home__main-content {
+  flex: 0 0 60%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 0.5rem;
-  box-sizing: border-box;
+  gap: 20px;
 }
 
-/* News cards section */
+.home__rightbar {
+  flex: 0 0 24%;
+}
+
+/* Ensure scrolling works */
+html,
+body {
+  height: auto !important;
+  min-height: 100%;
+  overflow-y: auto !important;
+  margin: 0;
+  padding: 0;
+  background: #f3f4f6;
+}
+
+/* ==== NEWS LIST ==== */
 .home__news-grid {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 20px;
 }
 
-/* Right sidebar */
-.home__rightbar {
-  padding: 0.5rem;
+/* ==== NEWS CARD ==== */
+.news-card {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 300px; /* Ensures card can hold ~10–12 lines */
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  box-sizing: border-box;
+  gap: 10px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* Responsive tweaks */
+.news-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Title */
+.news-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* AI Summary */
+.ai-summary {
+  background: #f9fafb;
+  padding: 12px 14px;
+  border-left: 4px solid #3b82f6;
+  font-size: 1rem; /* readable */
+  color: #1f2937;
+  line-height: 1.6;
+  flex-grow: 1; /* pushes reaction buttons to top, text fills space */
+}
+
+/* Reaction buttons */
+.reaction-top-right {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.happy-btn,
+.sad-btn {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 50px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.happy-btn:hover {
+  background: #d1fae5;
+  transform: scale(1.05);
+}
+
+.sad-btn:hover {
+  background: #fee2e2;
+  transform: scale(1.05);
+}
+
+/* ==== RESPONSIVE ==== */
 @media (max-width: 1024px) {
   .home {
-    display: flex;
     flex-direction: column;
+    width: 94%;
   }
-
   .home__sidebar,
-  .home__rightbar,
-  .home__main-content {
-    width: 100%;
+  .home__rightbar {
+    flex: 0 0 100%;
   }
-
-  .home__news-grid {
-    width: 100%;
+  .home__main-content {
+    flex: 0 0 100%;
   }
 }
