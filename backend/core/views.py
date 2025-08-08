@@ -56,3 +56,20 @@ def get_preferences(request):
     user = request.user.username
     prefs = user_pref_collection.find_one({'username': user}, {'_id':0})
     return Response(prefs or {"categories": []})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_filtered_articles(request):
+    user = request.user.username
+    prefs = user_pref_collection.find_one({'username': user}, {'_id': 0})
+    categories = prefs.get('categories', [])
+
+    if not categories:
+        return Response({"articles": [], "message": "No preferences set."})
+
+    filtered_articles = list(articles_collection.find(
+        {"category": {"$in": categories}},
+        {"_id": 0}
+    ))
+
+    return Response({"articles": filtered_articles})

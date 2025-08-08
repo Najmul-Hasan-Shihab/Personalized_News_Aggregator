@@ -24,7 +24,7 @@ const AuthPage = () => {
             <p className="banner-description">
               This is our SWE Final group project — a personalized News Aggregator.
               <br />
-              Team: <strong>FAHIM</strong>, <strong>MISKAT</strong>, <strong>SHIHAB</strong>.
+              Team: <strong>FAHIM</strong>, <strong>MISKAT</strong>, <strong>SHIHAB</strong>, <strong>TASIN</strong>.
               <br />
               Guided by <strong>Mohammad Arfizurrahman</strong>.
             </p>
