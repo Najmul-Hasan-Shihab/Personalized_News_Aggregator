@@ -32,9 +32,13 @@ const allCategories = ["Technology",
 ];
 
 const Profile = () => {
-  const [user, setUser] = useState(initialUser);
+  // Initialize user data from localStorage or use defaults
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("userProfile");
+    return savedUser ? JSON.parse(savedUser) : initialUser;
+  });
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ ...initialUser });
+  const [editData, setEditData] = useState({ ...user });
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   useEffect(() => {
@@ -56,6 +60,11 @@ const Profile = () => {
     fetchPreferences();
   }, []);
 
+  // Save user data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("userProfile", JSON.stringify(user));
+  }, [user]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
@@ -66,7 +75,9 @@ const Profile = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setUser((prev) => ({ ...prev, [type]: reader.result }));
+        const imageData = reader.result;
+        setUser((prev) => ({ ...prev, [type]: imageData }));
+        setEditData((prev) => ({ ...prev, [type]: imageData }));
       };
       reader.readAsDataURL(file);
     }
@@ -90,118 +101,225 @@ const Profile = () => {
 
   const handleSave = async () => {
     setUser(editData);
+    localStorage.setItem("userProfile", JSON.stringify(editData));
     await handleSavePreferences();
     setIsEditing(false);
   };
 
   return (
-    <div className="user-profile">
-      <div className="cover-image">
-        <img src={user.coverPic} alt="Cover" />
-        <label className="edit-image-btn">
-          📷
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, "coverPic")}
-          />
-        </label>
-      </div>
-
-      <div className="profile-info">
-        <div className="profile-pic-wrapper">
-          <img className="profile-pic" src={user.profilePic} alt="Profile" />
-          <label className="edit-image-btn profile-btn">
-            📷
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleImageChange(e, "profilePic")}
-            />
-          </label>
-        </div>
-        <h2>{user.name}</h2>
-        <p>{user.bio}</p>
-      </div>
-
-      <div className="profile-layout">
-        <div className="intro-section">
-          <h3>Intro</h3>
-          <ul>
-            <li><strong>Email:</strong> {user.email}</li>
-            <li><strong>Contact:</strong> {user.contact}</li>
-            <li><strong>School:</strong> {user.school}</li>
-            <li><strong>College:</strong> {user.college}</li>
-            <li><strong>University:</strong> {user.university}</li>
-            <li><strong>Work:</strong> {user.work}</li>
-          </ul>
-          <div className="preferences">
-            <h4>Your Preferences</h4>
-            <ul>
-              {selectedCategories.length > 0 ? (
-                selectedCategories.map((cat) => <li key={cat}>{cat}</li>)
-              ) : (
-                <li>No preferences selected</li>
-              )}
-            </ul>
+    <div className="profile-page">
+      <div className="profile-container">
+        {/* Cover and Profile Picture Card */}
+        <div className="profile-header-card">
+          <div className="cover-image">
+            <img src={user.coverPic} alt="Cover" />
+            <label className="edit-image-btn">
+              📷 Edit Cover
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleImageChange(e, "coverPic")}
+              />
+            </label>
           </div>
-          <button className="edit-btn" onClick={() => setIsEditing(true)}>Edit Info</button>
+
+          <div className="profile-info">
+            <div className="profile-pic-wrapper">
+              <img className="profile-pic" src={user.profilePic} alt="Profile" />
+              <label className="edit-image-btn profile-btn">
+                📷
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(e, "profilePic")}
+                />
+              </label>
+            </div>
+            <div className="profile-details">
+              <h2>{user.name}</h2>
+              <p className="profile-bio">{user.bio}</p>
+            </div>
+          </div>
         </div>
 
-        <div className="post-section">
-          <h3>Your Posts</h3>
-          {userPosts.length > 0 ? (
-            userPosts.map((post) => (
-              <div key={post.id} className="post-card">
-                <p>{post.content}</p>
-                <span className="post-date">{post.date}</span>
+        {/* Main Content Layout */}
+        <div className="profile-layout">
+          {/* Left Sidebar - Intro Card */}
+          <aside className="profile-sidebar">
+            <div className="intro-card">
+              <h3>About</h3>
+              <div className="info-list">
+                <div className="info-item">
+                  <span className="info-icon">📧</span>
+                  <div className="info-content">
+                    <span className="info-label">Email</span>
+                    <span className="info-value">{user.email}</span>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <span className="info-icon">📱</span>
+                  <div className="info-content">
+                    <span className="info-label">Contact</span>
+                    <span className="info-value">{user.contact}</span>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <span className="info-icon">🏫</span>
+                  <div className="info-content">
+                    <span className="info-label">School</span>
+                    <span className="info-value">{user.school}</span>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <span className="info-icon">🎓</span>
+                  <div className="info-content">
+                    <span className="info-label">College</span>
+                    <span className="info-value">{user.college}</span>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <span className="info-icon">🏛️</span>
+                  <div className="info-content">
+                    <span className="info-label">University</span>
+                    <span className="info-value">{user.university}</span>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <span className="info-icon">💼</span>
+                  <div className="info-content">
+                    <span className="info-label">Work</span>
+                    <span className="info-value">{user.work}</span>
+                  </div>
+                </div>
               </div>
-            ))
-          ) : (
-            <p>No posts yet.</p>
-          )}
+            </div>
+
+            <div className="preferences-card">
+              <h3>Your Interests</h3>
+              <div className="category-tags">
+                {selectedCategories.length > 0 ? (
+                  selectedCategories.map((cat) => (
+                    <span key={cat} className="category-tag">{cat}</span>
+                  ))
+                ) : (
+                  <p className="no-preferences">No preferences selected</p>
+                )}
+              </div>
+            </div>
+
+            <button className="edit-profile-btn" onClick={() => setIsEditing(true)}>
+              ✏️ Edit Profile
+            </button>
+          </aside>
+
+          {/* Right Content - Posts Section */}
+          <main className="profile-main">
+            <div className="posts-card">
+              <h3>Your Posts</h3>
+              <div className="posts-list">
+                {userPosts.length > 0 ? (
+                  userPosts.map((post) => (
+                    <div key={post.id} className="post-card">
+                      <p className="post-content">{post.content}</p>
+                      <span className="post-date">📅 {post.date}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-posts">
+                    <p>📝 No posts yet.</p>
+                    <span>Start sharing your thoughts about the news!</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </main>
         </div>
       </div>
 
+      {/* Edit Modal */}
       {isEditing && (
         <div className="edit-modal">
-          <form className="edit-form" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-            <input type="text" name="name" value={editData.name} onChange={handleChange} placeholder="Name" required />
-            <input type="email" name="email" value={editData.email} onChange={handleChange} placeholder="Email" required />
-            <input type="text" name="contact" value={editData.contact} onChange={handleChange} placeholder="Contact" />
-            <input type="text" name="school" value={editData.school} onChange={handleChange} placeholder="School" />
-            <input type="text" name="college" value={editData.college} onChange={handleChange} placeholder="College" />
-            <input type="text" name="university" value={editData.university} onChange={handleChange} placeholder="University" />
-            <input type="text" name="work" value={editData.work} onChange={handleChange} placeholder="Work" />
-            <textarea name="bio" value={editData.bio} onChange={handleChange} placeholder="Short bio..." rows="3" />
-
-            <div className="category-selection">
-              <h4>Select Your Interests</h4>
-              {allCategories.map((cat) => (
-                <label key={cat}>
-                  <input
-                    type="checkbox"
-                    value={cat}
-                    checked={selectedCategories.includes(cat)}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setSelectedCategories((prev) =>
-                        prev.includes(value)
-                          ? prev.filter((c) => c !== value)
-                          : [...prev, value]
-                      );
-                    }}
-                  />
-                  {cat}
-                </label>
-              ))}
+          <div className="edit-modal-content">
+            <div className="edit-modal-header">
+              <h2>Edit Profile</h2>
+              <button className="close-btn" onClick={() => setIsEditing(false)}>✕</button>
             </div>
+            
+            <form className="edit-form" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+              <div className="form-section">
+                <h3>Personal Information</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" value={editData.name} onChange={handleChange} placeholder="Your name" required />
+                  </div>
+                  <div className="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" value={editData.email} onChange={handleChange} placeholder="your@email.com" required />
+                  </div>
+                </div>
+                
+                <div className="form-group">
+                  <label>Contact</label>
+                  <input type="text" name="contact" value={editData.contact} onChange={handleChange} placeholder="Phone number" />
+                </div>
+                
+                <div className="form-group">
+                  <label>Bio</label>
+                  <textarea name="bio" value={editData.bio} onChange={handleChange} placeholder="Tell us about yourself..." rows="3" />
+                </div>
+              </div>
 
-            <div className="edit-buttons">
-              <button type="submit">Save</button>
-              <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
-            </div>
-          </form>
+              <div className="form-section">
+                <h3>Education & Work</h3>
+                <div className="form-group">
+                  <label>School</label>
+                  <input type="text" name="school" value={editData.school} onChange={handleChange} placeholder="School name" />
+                </div>
+                <div className="form-group">
+                  <label>College</label>
+                  <input type="text" name="college" value={editData.college} onChange={handleChange} placeholder="College name" />
+                </div>
+                <div className="form-group">
+                  <label>University</label>
+                  <input type="text" name="university" value={editData.university} onChange={handleChange} placeholder="University name" />
+                </div>
+                <div className="form-group">
+                  <label>Work</label>
+                  <input type="text" name="work" value={editData.work} onChange={handleChange} placeholder="Current position" />
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>News Interests</h3>
+                <div className="category-selection">
+                  {allCategories.map((cat) => (
+                    <label key={cat} className="category-checkbox">
+                      <input
+                        type="checkbox"
+                        value={cat}
+                        checked={selectedCategories.includes(cat)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setSelectedCategories((prev) =>
+                            prev.includes(value)
+                              ? prev.filter((c) => c !== value)
+                              : [...prev, value]
+                          );
+                        }}
+                      />
+                      <span>{cat}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="edit-buttons">
+                <button type="button" className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
+                <button type="submit" className="save-btn">Save Changes</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

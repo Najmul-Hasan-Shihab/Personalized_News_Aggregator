@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { fetchArticles } from "../services/api";
 import "./Home.css";
 
 import Sidebar from "../components/Sidebar/Sidebar";
+import NewsCard from "../components/NewsCard/NewsCard";
 import SponsoredCard from "../components/SponsoredCard/SponsoredCard";
 import NewestList from "../components/NewestList/NewestList";
 import LoadMoreButton from "../components/LoadMoreButton/LoadMoreButton";
@@ -12,41 +13,29 @@ const Home = () => {
   const [news, setNews] = useState([]);
   const [displayCount, setDisplayCount] = useState(10);
   const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const templateNews = [
-    {
-      title: "AI Breakthrough in Renewable Energy",
-      aiSummary:
-        "AI system optimizes solar energy capture, potentially doubling efficiency.",
-      url: "#",
-      posScore: 12,
-      negScore: 2,
-    },
-    {
-      title: "Global Markets Surge After Policy Announcement",
-      aiSummary:
-        "New central bank policy boosts investor confidence, sparking a market rally.",
-      url: "#",
-      posScore: 20,
-      negScore: 5,
-    },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchNews = async () => {
+    const loadNews = async () => {
+      setLoading(true);
+      setError(null);
+      
       try {
-        const response = await axios.get("http://127.0.0.1:8000/articles/");
-        const sorted = response.data.sort(
+        const data = await fetchArticles();
+        const sorted = data.sort(
           (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt)
         );
-        setNews(sorted.length > 0 ? sorted : templateNews);
-      } catch (error) {
-        console.error("Error fetching articles:", error);
-        setNews(templateNews);
+        setNews(sorted);
+      } catch (err) {
+        console.error("Error fetching articles:", err);
+        setError("Failed to load articles. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchNews();
+    loadNews();
   }, []);
 
   const handleCategoryClick = (category) => {
@@ -83,28 +72,51 @@ const Home = () => {
 
         {/* Main News Section */}
         <section className="home__main-content">
-          <div className="home__news-grid">
-            {filteredNews.slice(0, displayCount).map((item, index) => (
-              <a
-                key={index}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="news-card"
-              >
-                <div className="reaction-top-right">
-                  <button className="happy-btn">😀 {item.posScore || 0}</button>
-                  <button className="sad-btn">😞 {item.negScore || 0}</button>
-                </div>
-                <h3 className="news-title">{item.title}</h3>
-                {item.aiSummary && (
-                  <p className="ai-summary">{item.aiSummary}</p>
-                )}
-              </a>
-            ))}
-          </div>
+          {loading ? (
+            <div className="loading-container">
+              <div className="loader"></div>
+              <p>Loading articles...</p>
+            </div>
+          ) : error ? (
+            <div className="error-container">
+              <p className="error-message">{error}</p>
+              <button onClick={() => window.location.reload()}>Retry</button>
+            </div>
+          ) : filteredNews.length === 0 ? (
+            <div className="empty-state">
+              <h2>No articles found</h2>
+              <p>
+                {selectedCategory === "All"
+                  ? "No articles available. Please check back later."
+                  : `No articles found in category: ${selectedCategory}`}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="home__news-grid">
+                {filteredNews.slice(0, displayCount).map((item, index) => (
+                  <NewsCard
+                    key={index}
+                    title={item.title}
+                    image={item.urlToImage}
+                    source={item.source}
+                    date={item.publishedAt || item.ingested_at || item.date}
+                    author={item.author}
+                    summary={item.summary}
+                    link={item.url}
+                    category={item.category}
+                    sentiment_label={item.sentiment_label}
+                    sentiment_confidence={item.sentiment_confidence}
+                    entities={item.entities}
+                  />
+                ))}
+              </div>
 
-          <LoadMoreButton onClick={loadMore} loading={false} />
+              {displayCount < filteredNews.length && (
+                <LoadMoreButton onClick={loadMore} loading={false} />
+              )}
+            </>
+          )}
         </section>
 
         {/* Right Sidebar */}

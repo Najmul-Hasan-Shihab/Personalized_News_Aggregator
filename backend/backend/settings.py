@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c0x&oze#c*#3n(di!@^!$+_ui+!-^fr9^giafl4gi9s=lhxpq@'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-c0x&oze#c*#3n(di!@^!$+_ui+!-^fr9^giafl4gi9s=lhxpq@')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
 
 # Application definition
@@ -131,9 +132,18 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for CORS
+# === CORS Configuration ===
+CORS_ALLOWED_ORIGINS = config(
+    'CORS_ALLOWED_ORIGINS',
+    default='http://localhost:5173,http://127.0.0.1:5173',
+    cast=Csv()
+)
+
+# === MongoDB Configuration ===
+MONGODB_URI = config('MONGODB_URI', default='mongodb://localhost:27017/')
+MONGODB_DB_NAME = config('MONGODB_DB_NAME', default='news_aggregator_db')
 
 # === News API Keys ===
-NEWSAPI_KEY = "312653a1442341ccad66eb5f1e217665"
-GNEWS_KEY = "fe26e15058f89be6b1f6f94d3a46e8ef"
-MEDIASTACK_KEY = "ab1b22f6b4c7fe6b3561eaa9e2748c69"
+NEWSAPI_KEY = config('NEWSAPI_KEY', default='')
+GNEWS_KEY = config('GNEWS_KEY', default='')
+MEDIASTACK_KEY = config('MEDIASTACK_KEY', default='')

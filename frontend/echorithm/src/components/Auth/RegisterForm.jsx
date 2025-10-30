@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { registerUser } from "../../services/api";
 import "./AuthPage.css";
 
 const RegisterForm = ({ onSwitch }) => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -15,19 +16,26 @@ const RegisterForm = ({ onSwitch }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    
     if (!agree) {
       setError("❌ You must agree to the terms.");
       return;
     }
+    
+    setLoading(true);
+    
     try {
-      await axios.post("http://127.0.0.1:8000/register/", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
-      alert("✅ Registration successful!");
+      await registerUser(formData.username, formData.password);
+      alert("✅ Registration successful! Please login.");
       onSwitch();
     } catch (err) {
       console.error(err);
-      setError("❌ Something went wrong. Try again.");
+      const errorMessage = err.response?.data?.username?.[0] || 
+                          err.response?.data?.password?.[0] ||
+                          "❌ Something went wrong. Try again.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,22 +43,18 @@ const RegisterForm = ({ onSwitch }) => {
     <div>
       <div className="auth-header">
         <h2>Create Account</h2>
-        <button
-          type="button"
-          className="close-btn"
-          aria-label="Close"
-          onClick={() => (window.location.href = "/")}
-        >
-          &times;
-        </button>
+        <p>Join Echorithm to get personalized news</p>
       </div>
+
+      {error && <p className="error-message" role="alert">{error}</p>}
 
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <div className="form-group">
+          <label htmlFor="username">Username</label>
           <input
             id="username"
             type="text"
-            placeholder="Username"
+            placeholder="Choose a username"
             value={formData.username}
             onChange={handleChange}
             required
@@ -58,10 +62,11 @@ const RegisterForm = ({ onSwitch }) => {
         </div>
 
         <div className="form-group">
+          <label htmlFor="password">Password</label>
           <input
             id="password"
             type="password"
-            placeholder="Password"
+            placeholder="Create a strong password"
             value={formData.password}
             onChange={handleChange}
             required
@@ -69,29 +74,30 @@ const RegisterForm = ({ onSwitch }) => {
         </div>
 
         <div className="checkbox-group">
+          <input
+            id="terms"
+            type="checkbox"
+            checked={agree}
+            onChange={(e) => setAgree(e.target.checked)}
+          />
           <label htmlFor="terms">
-            <input
-              id="terms"
-              type="checkbox"
-              checked={agree}
-              onChange={(e) => setAgree(e.target.checked)}
-            />
-            <span>
-              I agree to the <a href="#">Terms &amp; Conditions</a> and confirm I am over 18.
-            </span>
+            I agree to the Terms & Conditions and confirm I am over 18.
           </label>
         </div>
 
-        <button type="submit" className="auth-btn">Open Account</button>
-
-        <div className="auth-footer">
-          <a href="#" onClick={(e) => { e.preventDefault(); onSwitch(); }}>
-            Already have an account? Sign In
-          </a>
-        </div>
-
-        {error && <p className="error-message" role="alert">{error}</p>}
+        <button type="submit" className="auth-btn" disabled={loading}>
+          {loading ? "Creating Account..." : "Create Account"}
+        </button>
       </form>
+
+      <div className="auth-switch">
+        <p>
+          Already have an account?
+          <button type="button" onClick={onSwitch}>
+            Sign in
+          </button>
+        </p>
+      </div>
     </div>
   );
 };

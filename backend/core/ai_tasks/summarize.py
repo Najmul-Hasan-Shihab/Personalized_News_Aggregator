@@ -1,32 +1,146 @@
 from transformers import pipeline, AutoTokenizer
 import torch
+import re
 
-#Load primary and fallback models
+#Model names
 primary_model="facebook/bart-large-cnn"
 fallback_model="t5-small"
 
-#load pipelines
-summarizer_primary = pipeline("summarization", model=primary_model, tokenizer=primary_model, device=0 if torch.cuda.is_available() else -1)
-summarizer_fallback = pipeline("summarization", model=fallback_model, tokenizer=fallback_model, device=0 if torch.cuda.is_available() else -1)
+# Lazy loading - models are None until first use
+_summarizer_primary = None
+_summarizer_fallback = None
+_tokenizer = None
 
-#Tokenizer for truncation
-tokenizer=AutoTokenizer.from_pretrained(primary_model)
+def _get_tokenizer():
+    """Lazy load tokenizer."""
+    global _tokenizer
+    if _tokenizer is None:
+        print("📥 Loading tokenizer...")
+        _tokenizer = AutoTokenizer.from_pretrained(primary_model)
+    return _tokenizer
+
+def _get_primary_summarizer():
+    """Lazy load primary summarization model."""
+    global _summarizer_primary
+    if _summarizer_primary is None:
+        print("📥 Loading primary summarization model (BART)...")
+        _summarizer_primary = pipeline(
+            "summarization", 
+            model=primary_model, 
+            tokenizer=primary_model, 
+            device=0 if torch.cuda.is_available() else -1
+        )
+    return _summarizer_primary
+
+def _get_fallback_summarizer():
+    """Lazy load fallback summarization model."""
+    global _summarizer_fallback
+    if _summarizer_fallback is None:
+        print("📥 Loading fallback summarization model (T5)...")
+        _summarizer_fallback = pipeline(
+            "summarization", 
+            model=fallback_model, 
+            tokenizer=fallback_model, 
+            device=0 if torch.cuda.is_available() else -1
+        )
+    return _summarizer_fallback
+
+def clean_text(text):
+    """Clean and prepare text for summarization."""
+    # Remove extra whitespace
+    text = re.sub(r'\s+', ' ', text)
+    # Remove URLs
+    text = re.sub(r'http\S+|www\.\S+', '', text)
+    # Remove special characters but keep punctuation
+    text = re.sub(r'[^\w\s.,!?;:\'-]', '', text)
+    # Remove common article footers
+    text = re.sub(r'(Read more|Continue reading|Click here|Subscribe).*$', '', text, flags=re.IGNORECASE)
+    # Remove repetitive phrases
+    text = re.sub(r'(\b\w+\b)(\s+\1){2,}', r'\1', text)
+    return text.strip()
 
 def truncate_text(text, max_tokens=1024):
-    tokens=tokenizer.encode(text, truncation=True, max_length=max_tokens)
-    return tokenizer.decode(tokens, skip_special_tokens=True)
+    """Intelligently truncate text to max tokens."""
+    tokenizer = _get_tokenizer()
+    text = clean_text(text)
+    
+    # Split into sentences to avoid cutting mid-sentence
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    truncated = []
+    token_count = 0
+    
+    for sentence in sentences:
+        sentence_tokens = tokenizer.encode(sentence, add_special_tokens=False)
+        if token_count + len(sentence_tokens) <= max_tokens:
+            truncated.append(sentence)
+            token_count += len(sentence_tokens)
+        else:
+            break
+    
+    return ' '.join(truncated)
+
+def post_process_summary(summary):
+    """Clean up the generated summary."""
+    # Remove incomplete sentences at the end
+    summary = re.sub(r'\s+[^.!?]*$', '', summary)
+    # Ensure it ends with proper punctuation
+    if summary and summary[-1] not in '.!?':
+        summary += '.'
+    # Capitalize first letter
+    if summary:
+        summary = summary[0].upper() + summary[1:]
+    # Remove redundant spaces
+    summary = re.sub(r'\s+', ' ', summary).strip()
+    return summary
 
 def generate_summary(text, use_fallback=False):
+    """Generate a clean, readable summary."""
     if not text or len(text.split()) < 30:
-        print("Skipped short article.")
+        print("⚠️ Text too short for summarization.")
         return ""
 
     try:
-        truncated_text = truncate_text(text)
-        summarizer = summarizer_fallback if use_fallback or len(text.split()) < 100 else summarizer_primary
-        summary = summarizer(truncated_text, max_length=100, min_length=30, do_sample=False)[0]['summary_text']
+        # Clean and truncate the text
+        truncated_text = truncate_text(text, max_tokens=800)
+        
+        # Skip if cleaned text is too short
+        if len(truncated_text.split()) < 30:
+            print("⚠️ Cleaned text too short.")
+            return ""
+        
+        # Choose model based on text length and preference
+        word_count = len(truncated_text.split())
+        if use_fallback or word_count < 80:
+            summarizer = _get_fallback_summarizer()
+            max_len, min_len = 60, 20
+        else:
+            summarizer = _get_primary_summarizer()
+            max_len, min_len = 130, 40
+        
+        # Generate summary with better parameters
+        result = summarizer(
+            truncated_text,
+            max_length=max_len,
+            min_length=min_len,
+            do_sample=False,
+            num_beams=4,  # Better quality
+            early_stopping=True
+        )
+        
+        summary = result[0]['summary_text']
+        
+        # Post-process for better readability
+        summary = post_process_summary(summary)
+        
+        print(f"✅ Summary generated: {len(summary)} chars")
         return summary
+        
     except Exception as e:
-        print("❌ Summarization failed:", e)
+        print(f"❌ Summarization failed: {e}")
+        # Try fallback if primary failed
+        if not use_fallback:
+            print("🔄 Trying fallback model...")
+            return generate_summary(text, use_fallback=True)
         return ""
+
 

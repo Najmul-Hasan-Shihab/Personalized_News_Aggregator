@@ -1,14 +1,24 @@
-asgiref==3.8.1
+# Django Framework
 Django==5.2.3
-django-cors-headers==4.7.0
-dnspython==2.7.0
-pymongo==4.13.0
-sqlparse==0.5.3
-tzdata==2025.2
-requests==2.32.3
 djangorestframework==3.15.0
 djangorestframework-simplejwt==5.2.2
-transformers==4.37.2
+django-cors-headers==4.7.0
+
+# Database
+pymongo==4.13.0
+dnspython==2.7.0
+
+# HTTP Requests
+requests==2.32.3
+
+# AI/ML Libraries
 torch==2.3.0
-react-router-dom==6.18.0
-axios==1.7.0
+transformers==4.37.2
+
+# Utilities
+python-decouple==3.8
+
+# Django Dependencies
+asgiref==3.8.1
+sqlparse==0.5.3
+tzdata==2025.2

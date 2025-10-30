@@ -1,21 +1,98 @@
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
+import re
 
 model_name = "dslim/bert-base-NER"
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForTokenClassification.from_pretrained(model_name)
+# Lazy loading - pipeline is None until first use
+_ner_pipeline = None
 
-ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+def _get_ner_pipeline():
+    """Lazy load NER pipeline."""
+    global _ner_pipeline
+    if _ner_pipeline is None:
+        print("📥 Loading NER model (BERT)...")
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForTokenClassification.from_pretrained(model_name)
+        _ner_pipeline = pipeline(
+            "ner",
+            model=model,
+            tokenizer=tokenizer,
+            aggregation_strategy="simple",
+            device=-1  # CPU
+        )
+    return _ner_pipeline
+
+def clean_entity(entity_text):
+    """Clean and normalize entity text."""
+    # Remove special characters but keep spaces and hyphens
+    entity = re.sub(r'[^\w\s\-.]', '', entity_text)
+    # Remove extra spaces
+    entity = re.sub(r'\s+', ' ', entity).strip()
+    # Capitalize properly
+    entity = ' '.join(word.capitalize() for word in entity.split())
+    return entity
+
+def filter_valid_entities(entities):
+    """Filter out invalid or low-quality entities."""
+    valid = []
+    seen = set()
+    
+    for entity in entities:
+        # Clean the entity
+        cleaned = clean_entity(entity)
+        
+        # Skip if too short or invalid
+        if len(cleaned) < 2 or cleaned.lower() in ['the', 'a', 'an', 'and', 'or']:
+            continue
+        
+        # Skip single characters or numbers
+        if len(cleaned) == 1 or cleaned.isdigit():
+            continue
+        
+        # Skip if already seen (case-insensitive)
+        if cleaned.lower() in seen:
+            continue
+        
+        seen.add(cleaned.lower())
+        valid.append(cleaned)
+    
+    return valid
 
 def extract_entities(text):
+    """Extract clean, meaningful entities from text."""
     try:
-        if not text or len(text.split()) < 30:
+        if not text or len(text.split()) < 20:
             return []
 
+        ner_pipeline = _get_ner_pipeline()
+        
+        # Limit text length for efficiency
+        words = text.split()
+        if len(words) > 300:
+            # Take first 200 and last 100 words (usually contain key entities)
+            text = ' '.join(words[:200] + words[-100:])
+        
+        # Run NER
         results = ner_pipeline(text)
-        entities = list({ent['word'] for ent in results if ent['entity_group'] in ["PER", "LOC", "ORG", "MISC"]})
-
+        
+        # Extract entity words with score threshold
+        raw_entities = [
+            ent['word'] 
+            for ent in results 
+            if ent['entity_group'] in ["PER", "LOC", "ORG", "MISC"] 
+            and ent.get('score', 0) > 0.85  # Higher confidence threshold
+        ]
+        
+        # Filter and clean entities
+        entities = filter_valid_entities(raw_entities)
+        
+        # Limit to top 10 most relevant
+        entities = entities[:10]
+        
+        print(f"✅ Extracted {len(entities)} entities: {entities[:5]}")
         return entities
+        
     except Exception as e:
-        print("❌ NER failed:", e)
+        print(f"❌ NER failed: {e}")
         return []
+

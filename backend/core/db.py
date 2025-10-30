@@ -1,6 +1,8 @@
 from pymongo import MongoClient
+from django.conf import settings
 
-client = MongoClient("mongodb://localhost:27017/")
-db = client["news_aggregator_db"]
+# Use settings from environment variables
+client = MongoClient(settings.MONGODB_URI)
+db = client[settings.MONGODB_DB_NAME]
 articles_collection = db["articles"]
 user_pref_collection = db["user_preferences"]

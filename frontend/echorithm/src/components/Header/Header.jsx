@@ -15,13 +15,13 @@ const Header = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("access");
     setIsLoggedIn(!!token);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
     setIsLoggedIn(false);
     navigate("/auth");
   };
@@ -66,11 +66,11 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <button className="btn btn--outline" onClick={() => navigate("/auth")}>
+                  <button className="btn btn--outline" onClick={() => navigate("/auth?mode=login")}>
                     <LogIn size={16} style={{ marginRight: "6px" }} />
                     Login
                   </button>
-                  <button className="btn btn--filled" onClick={() => navigate("/auth")}>
+                  <button className="btn btn--filled" onClick={() => navigate("/auth?mode=signup")}>
                     <UserPlus size={16} style={{ marginRight: "6px" }} />
                     Sign Up
                   </button>
