@@ -3,7 +3,8 @@ from django.http import JsonResponse
 from .utils import aggregate_and_store_articles
 from .db import (
     articles_collection, user_pref_collection, reading_history_collection, 
-    search_history_collection, bookmarks_collection, reading_lists_collection
+    search_history_collection, bookmarks_collection, reading_lists_collection,
+    analytics_collection
 )
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny

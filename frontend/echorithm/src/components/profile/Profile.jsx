@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Analytics from "../Analytics/Analytics";
 import "./profile.css";
 
 const initialUser = {
@@ -10,8 +11,8 @@ const initialUser = {
   university: "State University",
   work: "Software Developer at OpenAI",
   bio: "News lover & open-source contributor.",
-  profilePic: "https://via.placeholder.com/120",
-  coverPic: "https://via.placeholder.com/800x200"
+  profilePic: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%236366f1'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='48' fill='white'%3EJD%3C/text%3E%3C/svg%3E",
+  coverPic: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1'/%3E%3Cstop offset='100%25' style='stop-color:%238b5cf6;stop-opacity:1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='200' fill='url(%23grad)'/%3E%3C/svg%3E"
 };
 
 const userPosts = [
@@ -40,6 +41,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ ...user });
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [activeTab, setActiveTab] = useState("posts"); // "posts" or "analytics"
 
   useEffect(() => {
     const fetchPreferences = async () => {
@@ -141,10 +143,14 @@ const Profile = () => {
         <div className="profile-header-card">
           <div className="cover-image">
             <img 
-              src={user.coverPic || 'https://via.placeholder.com/800x200'} 
+              src={user.coverPic} 
               alt="Cover"
               onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/800x200';
+                // Prevent infinite loop by only setting fallback once
+                if (!e.target.dataset.fallback) {
+                  e.target.dataset.fallback = 'true';
+                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1'/%3E%3Cstop offset='100%25' style='stop-color:%238b5cf6;stop-opacity:1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='200' fill='url(%23grad)'/%3E%3C/svg%3E";
+                }
               }}
             />
             <label className="edit-image-btn">
@@ -161,10 +167,14 @@ const Profile = () => {
             <div className="profile-pic-wrapper">
               <img 
                 className="profile-pic" 
-                src={user.profilePic || 'https://via.placeholder.com/120'} 
+                src={user.profilePic} 
                 alt="Profile"
                 onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/120';
+                  // Prevent infinite loop by only setting fallback once
+                  if (!e.target.dataset.fallback) {
+                    e.target.dataset.fallback = 'true';
+                    e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%236366f1'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='48' fill='white'%3EJD%3C/text%3E%3C/svg%3E";
+                  }
                 }}
               />
               <label className="edit-image-btn profile-btn">
@@ -253,26 +263,49 @@ const Profile = () => {
             </button>
           </aside>
 
-          {/* Right Content - Posts Section */}
+          {/* Right Content - Posts/Analytics Section with Tabs */}
           <main className="profile-main">
-            <div className="posts-card">
-              <h3>Your Posts</h3>
-              <div className="posts-list">
-                {userPosts.length > 0 ? (
-                  userPosts.map((post) => (
-                    <div key={post.id} className="post-card">
-                      <p className="post-content">{post.content}</p>
-                      <span className="post-date">📅 {post.date}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="no-posts">
-                    <p>📝 No posts yet.</p>
-                    <span>Start sharing your thoughts about the news!</span>
-                  </div>
-                )}
-              </div>
+            {/* Tab Navigation */}
+            <div className="profile-tabs">
+              <button
+                className={`tab-btn ${activeTab === 'posts' ? 'active' : ''}`}
+                onClick={() => setActiveTab('posts')}
+              >
+                📝 Your Posts
+              </button>
+              <button
+                className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
+                onClick={() => setActiveTab('analytics')}
+              >
+                📊 Reading Analytics
+              </button>
             </div>
+
+            {/* Tab Content */}
+            {activeTab === 'posts' ? (
+              <div className="posts-card">
+                <h3>Your Posts</h3>
+                <div className="posts-list">
+                  {userPosts.length > 0 ? (
+                    userPosts.map((post) => (
+                      <div key={post.id} className="post-card">
+                        <p className="post-content">{post.content}</p>
+                        <span className="post-date">📅 {post.date}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-posts">
+                      <p>📝 No posts yet.</p>
+                      <span>Start sharing your thoughts about the news!</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="posts-card">
+                <Analytics />
+              </div>
+            )}
           </main>
         </div>
       </div>

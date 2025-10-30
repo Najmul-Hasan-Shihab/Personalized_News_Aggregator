@@ -8,6 +8,10 @@ from .views import (
     create_reading_list, get_reading_lists, add_to_reading_list,
     remove_from_reading_list, delete_reading_list
 )
+from .analytics_endpoints import (
+    track_reading_session, get_reading_stats, get_reading_timeline,
+    get_peak_reading_times, get_personalized_insights
+)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -37,4 +41,10 @@ urlpatterns = [
     path("reading-lists/add-article/", add_to_reading_list),
     path("reading-lists/remove-article/", remove_from_reading_list),
     path("reading-lists/delete/", delete_reading_list),
+    # Analytics
+    path("analytics/track-session/", track_reading_session),
+    path("analytics/stats/", get_reading_stats),
+    path("analytics/timeline/", get_reading_timeline),
+    path("analytics/peak-times/", get_peak_reading_times),
+    path("analytics/insights/", get_personalized_insights),
 ]

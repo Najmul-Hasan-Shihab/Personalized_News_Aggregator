@@ -47,16 +47,25 @@ def _get_fallback_summarizer():
 
 def clean_text(text):
     """Clean and prepare text for summarization."""
-    # Remove extra whitespace
-    text = re.sub(r'\s+', ' ', text)
     # Remove URLs
     text = re.sub(r'http\S+|www\.\S+', '', text)
-    # Remove special characters but keep punctuation
-    text = re.sub(r'[^\w\s.,!?;:\'-]', '', text)
-    # Remove common article footers
-    text = re.sub(r'(Read more|Continue reading|Click here|Subscribe).*$', '', text, flags=re.IGNORECASE)
-    # Remove repetitive phrases
-    text = re.sub(r'(\b\w+\b)(\s+\1){2,}', r'\1', text)
+    # Remove email addresses
+    text = re.sub(r'\S+@\S+', '', text)
+    # Remove common article footers and CTAs
+    text = re.sub(r'(Read more|Continue reading|Click here|Subscribe|Sign up|Follow us|Share this).*$', '', text, flags=re.IGNORECASE)
+    # Remove social media handles
+    text = re.sub(r'@\w+', '', text)
+    text = re.sub(r'#\w+', '', text)
+    # Remove HTML entities
+    text = re.sub(r'&\w+;', ' ', text)
+    # Fix spacing around punctuation
+    text = re.sub(r'\s+([.,!?;:])', r'\1', text)
+    text = re.sub(r'([.,!?;:])\s*([a-zA-Z])', r'\1 \2', text)
+    # Remove extra whitespace
+    text = re.sub(r'\s+', ' ', text)
+    # Remove repetitive phrases (same word 3+ times in a row)
+    text = re.sub(r'\b(\w+)(\s+\1){2,}\b', r'\1', text, flags=re.IGNORECASE)
+    
     return text.strip()
 
 def truncate_text(text, max_tokens=1024):
@@ -80,17 +89,46 @@ def truncate_text(text, max_tokens=1024):
     return ' '.join(truncated)
 
 def post_process_summary(summary):
-    """Clean up the generated summary."""
+    """Clean up the generated summary with grammar fixes."""
+    # Fix common AI-generated issues
     # Remove incomplete sentences at the end
-    summary = re.sub(r'\s+[^.!?]*$', '', summary)
-    # Ensure it ends with proper punctuation
-    if summary and summary[-1] not in '.!?':
-        summary += '.'
-    # Capitalize first letter
-    if summary:
-        summary = summary[0].upper() + summary[1:]
-    # Remove redundant spaces
+    sentences = re.split(r'(?<=[.!?])\s+', summary)
+    complete_sentences = []
+    
+    for sentence in sentences:
+        sentence = sentence.strip()
+        # Only keep sentences that end with proper punctuation
+        if sentence and sentence[-1] in '.!?':
+            # Fix spacing issues
+            sentence = re.sub(r'\s+([.,!?;:])', r'\1', sentence)
+            sentence = re.sub(r'([.,!?;:])\s*([a-zA-Z])', r'\1 \2', sentence)
+            # Fix double spaces
+            sentence = re.sub(r'\s+', ' ', sentence)
+            # Ensure first letter is capitalized
+            if sentence:
+                sentence = sentence[0].upper() + sentence[1:]
+            complete_sentences.append(sentence)
+    
+    summary = ' '.join(complete_sentences)
+    
+    # If no complete sentences, try to salvage
+    if not summary:
+        summary = re.sub(r'\s+', ' ', summary).strip()
+        if summary and summary[-1] not in '.!?':
+            summary += '.'
+        if summary:
+            summary = summary[0].upper() + summary[1:]
+    
+    # Fix common word breaks (e.g., "U .S." -> "U.S.")
+    summary = re.sub(r'\b([A-Z])\s*\.\s*([A-Z])\s*\.', r'\1.\2.', summary)
+    summary = re.sub(r'\b([A-Z])\s+([A-Z])\b', r'\1\2', summary)
+    
+    # Remove duplicate punctuation
+    summary = re.sub(r'([.!?]){2,}', r'\1', summary)
+    
+    # Final cleanup
     summary = re.sub(r'\s+', ' ', summary).strip()
+    
     return summary
 
 def generate_summary(text, use_fallback=False):

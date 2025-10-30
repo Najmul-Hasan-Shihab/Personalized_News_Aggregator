@@ -388,10 +388,11 @@ Invoke-WebRequest -Uri http://127.0.0.1:8000/articles/update/
 
 ## 🎯 What to Do After Setup
 
-1. **Read the full README.md** for detailed documentation
-2. **Check PROJECT_ANALYSIS.md** to understand the codebase
-3. **Review QUICK_WINS_SUMMARY.md** to see recent improvements
-4. **Start contributing!** Pick an issue from the project analysis
+1. **Read the full README.md** for detailed project documentation
+2. **Review DESIGN_SYSTEM.md** to understand the design system
+3. **Check PROJECT_STATUS.md** to see project completion status
+4. **Review CONTRIBUTING.md** if you plan to contribute
+5. **Start exploring the application!**
 
 ---
 

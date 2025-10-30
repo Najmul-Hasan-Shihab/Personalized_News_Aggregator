@@ -139,6 +139,29 @@ CORS_ALLOWED_ORIGINS = config(
     cast=Csv()
 )
 
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
 # === MongoDB Configuration ===
 MONGODB_URI = config('MONGODB_URI', default='mongodb://localhost:27017/')
 MONGODB_DB_NAME = config('MONGODB_DB_NAME', default='news_aggregator_db')

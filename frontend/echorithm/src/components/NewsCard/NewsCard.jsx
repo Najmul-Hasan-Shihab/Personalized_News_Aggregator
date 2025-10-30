@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./NewsCard.css";
 import { formatDate } from "../../utils/formatDate";
-import { trackArticleView, addBookmark, removeBookmark, checkBookmarkStatus } from "../../services/api";
+import { trackArticleView, addBookmark, removeBookmark, checkBookmarkStatus, trackReadingSession } from "../../services/api";
 
 const NewsCard = ({ 
   article,  // Can receive full article object
@@ -20,6 +20,26 @@ const NewsCard = ({
 }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const [showReaderModal, setShowReaderModal] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const [readingStartTime, setReadingStartTime] = useState(null);
+  const [currentReadingTime, setCurrentReadingTime] = useState(0);
+  const [iframeError, setIframeError] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [loadingCheckDone, setLoadingCheckDone] = useState(false); // Prevent re-checking
+
+  // Update reading time every second when modal is open
+  useEffect(() => {
+    let interval;
+    if (showReaderModal && readingStartTime) {
+      interval = setInterval(() => {
+        setCurrentReadingTime(Math.floor((Date.now() - readingStartTime) / 1000));
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [showReaderModal, readingStartTime]);
 
   // Handle both article object and individual props
   const articleData = article ? {
@@ -64,19 +84,91 @@ const NewsCard = ({
     checkBookmark();
   }, [articleData.url]);
 
-  const handleArticleClick = async () => {
+  const handleArticleClick = async (e) => {
+    e.preventDefault(); // Prevent default link behavior
+    
+    const startTime = Date.now();
+    setReadingStartTime(startTime);
+    
     // Track article view for ML recommendations
     try {
       await trackArticleView({
-        article_url: articleData.url,  // Changed from 'url' to 'article_url'
-        article_title: articleData.title,  // Changed from 'title' to 'article_title'
+        article_url: articleData.url,
+        article_title: articleData.title,
         category: articleData.category,
-        reading_time: 0, // Can be enhanced with actual reading time tracking
+        reading_time: 0,
       });
     } catch (error) {
-      // Silently fail - tracking shouldn't break UX
       console.error("Failed to track article view:", error);
     }
+
+    // Track reading session for analytics (only if user is logged in)
+    if (localStorage.getItem('access')) {
+      try {
+        // Generate a unique session ID
+        const newSessionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        setSessionId(newSessionId);
+        
+        console.log('📊 Tracking reading session:', {
+          article_title: articleData.title,
+          category: articleData.category,
+          hour: new Date().getHours(),
+          day: new Date().toLocaleDateString('en-US', { weekday: 'long' })
+        });
+        
+        // Track the reading session start
+        await trackReadingSession({
+          session_id: newSessionId,
+          article_url: articleData.url,
+          article_title: articleData.title,
+          category: articleData.category || 'Uncategorized',
+          reading_time: 0,
+          completed: false,
+          timestamp: new Date().toISOString(),
+        });
+        
+        console.log('✅ Reading session tracked successfully');
+      } catch (error) {
+        console.error("Failed to track reading session:", error);
+      }
+    }
+    
+    // Open reader modal
+    setShowReaderModal(true);
+  };
+
+  const handleCloseReader = async () => {
+    // Calculate reading time
+    if (readingStartTime && sessionId && localStorage.getItem('access')) {
+      const readingTime = Math.floor((Date.now() - readingStartTime) / 1000); // in seconds
+      
+      console.log(`📖 User read for ${readingTime} seconds`);
+      
+      try {
+        // Update the session with actual reading time
+        await trackReadingSession({
+          session_id: sessionId,
+          article_url: articleData.url,
+          article_title: articleData.title,
+          category: articleData.category || 'Uncategorized',
+          reading_time: readingTime,
+          completed: readingTime > 30, // Consider completed if read for more than 30 seconds
+          timestamp: new Date().toISOString(),
+        });
+        
+        console.log('✅ Reading time updated successfully');
+      } catch (error) {
+        console.error("Failed to update reading time:", error);
+      }
+    }
+    
+    setShowReaderModal(false);
+    setSessionId(null);
+    setReadingStartTime(null);
+    setIframeError(false);
+    setIframeLoaded(false);
+    setLoadingCheckDone(false);
+    setCurrentReadingTime(0);
   };
 
   const handleBookmarkToggle = async (e) => {
@@ -159,12 +251,9 @@ const NewsCard = ({
         )}
         {articleData.entities && articleData.entities.length > 0 && (
           <div className="entities-compact">
-            {articleData.entities.slice(0, 3).map((entity, index) => (
+            {articleData.entities.map((entity, index) => (
               <span key={index} className="entity-chip">{entity}</span>
             ))}
-            {articleData.entities.length > 3 && (
-              <span className="entity-chip entity-chip--more">+{articleData.entities.length - 3}</span>
-            )}
           </div>
         )}
       </div>
@@ -188,16 +277,103 @@ const NewsCard = ({
 
       <div className="news-card__footer">
         {articleData.author && <span className="news-card__author">By {articleData.author}</span>}
-        <a 
-          href={articleData.url || "#"} 
+        <button 
           className="news-card__read-more" 
-          target="_blank" 
-          rel="noopener noreferrer"
           onClick={handleArticleClick}
         >
           Read Full Article →
-        </a>
+        </button>
       </div>
+
+      {/* Reading Modal */}
+      {showReaderModal && (
+        <div className="reader-modal-overlay" onClick={handleCloseReader}>
+          <div className="reader-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="reader-modal-header">
+              <h3 className="reader-modal-title">{articleData.title}</h3>
+              <button className="reader-modal-close" onClick={handleCloseReader}>
+                ✕
+              </button>
+            </div>
+            <div className="reader-modal-body">
+              {iframeError ? (
+                <div className="iframe-error-message">
+                  <div className="error-icon">🔒</div>
+                  <h3>Content Restriction</h3>
+                  <p>This website doesn't allow embedding for security reasons.</p>
+                  <p className="error-subtext">The article has been opened in a new tab. Your reading time is still being tracked!</p>
+                  <button className="error-close-btn" onClick={handleCloseReader}>
+                    Close & Save Reading Time
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <iframe
+                    src={articleData.url}
+                    title={articleData.title}
+                    className="reader-iframe"
+                    sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                    onLoad={(e) => {
+                      // Only check once to prevent flickering
+                      if (loadingCheckDone) return;
+                      setLoadingCheckDone(true);
+                      
+                      // Check if iframe loaded successfully or got blocked
+                      try {
+                        const iframeDoc = e.target.contentDocument || e.target.contentWindow.document;
+                        if (!iframeDoc || iframeDoc.location.href === 'about:blank') {
+                          // Iframe blocked - show error and open in new tab
+                          setIframeError(true);
+                          window.open(articleData.url, '_blank');
+                        } else {
+                          // Successfully loaded
+                          setIframeLoaded(true);
+                        }
+                      } catch (error) {
+                        // Cross-origin error means iframe loaded but we can't access it (which is fine)
+                        setIframeLoaded(true);
+                        console.log('Iframe loaded (cross-origin protection active)');
+                      }
+                    }}
+                    onError={() => {
+                      // Handle iframe loading errors (CSP, X-Frame-Options, etc.)
+                      if (!loadingCheckDone) {
+                        setLoadingCheckDone(true);
+                        setIframeError(true);
+                        window.open(articleData.url, '_blank');
+                      }
+                    }}
+                  />
+                  {!loadingCheckDone && (
+                    <div className="iframe-loading-overlay">
+                      <div className="loading-spinner-large"></div>
+                      <p>Loading article...</p>
+                      <button 
+                        className="skip-loading-btn"
+                        onClick={() => {
+                          setLoadingCheckDone(true);
+                          setIframeError(true);
+                          window.open(articleData.url, '_blank');
+                        }}
+                      >
+                        Can't see the article? Open in new tab instead
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            <div className="reader-modal-footer">
+              <span className="reading-timer">
+                ⏱️ Reading time: {Math.floor(currentReadingTime / 60)}m {currentReadingTime % 60}s
+              </span>
+              <button className="open-external-btn" onClick={() => window.open(articleData.url, '_blank')}>
+                Open in New Tab ↗
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </article>
   );
 };

@@ -153,9 +153,40 @@
   gap: 20px;
 }
 
+/* Profile Main Section */
 .profile-main {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
+}
+
+/* Tab Navigation */
+.profile-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e1e8ed;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #657786;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-btn:hover {
+  color: #1da1f2;
+  background: rgba(29, 161, 242, 0.05);
+}
+
+.tab-btn.active {
+  color: #1da1f2;
+  border-bottom-color: #1da1f2;
 }
 
 /* ==== INTRO CARD ==== */

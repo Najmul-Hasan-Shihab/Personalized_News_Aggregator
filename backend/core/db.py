@@ -16,6 +16,7 @@ reading_history_collection = db["reading_history"]
 search_history_collection = db["search_history"]
 bookmarks_collection = db["bookmarks"]
 reading_lists_collection = db["reading_lists"]
+analytics_collection = db["user_analytics"]
 
 # Create indexes for better query performance
 try:
@@ -83,6 +84,14 @@ try:
         logger.info("Created reading lists indexes")
     except OperationFailure:
         logger.info("Reading lists indexes already exist")
+    
+    # Analytics indexes
+    try:
+        analytics_collection.create_index([("username", 1), ("date", -1)])
+        analytics_collection.create_index([("username", 1), ("session_id", 1)])
+        logger.info("Created analytics indexes")
+    except OperationFailure:
+        logger.info("Analytics indexes already exist")
         
 except Exception as e:
     logger.error(f"Error creating indexes: {str(e)}")

@@ -24,13 +24,55 @@ def _get_ner_pipeline():
 
 def clean_entity(entity_text):
     """Clean and normalize entity text."""
-    # Remove special characters but keep spaces and hyphens
-    entity = re.sub(r'[^\w\s\-.]', '', entity_text)
+    # Remove hashtags, @ symbols
+    entity = re.sub(r'[#@]', '', entity_text)
+    # Remove special characters but keep spaces, hyphens, apostrophes, and periods
+    entity = re.sub(r'[^\w\s\-.\']', '', entity)
+    # Remove leading/trailing punctuation
+    entity = entity.strip('.-_')
     # Remove extra spaces
     entity = re.sub(r'\s+', ' ', entity).strip()
-    # Capitalize properly
-    entity = ' '.join(word.capitalize() for word in entity.split())
-    return entity
+    
+    # Better capitalization (preserve acronyms)
+    words = entity.split()
+    cleaned_words = []
+    for word in words:
+        # Keep all-caps words (likely acronyms like FBI, NASA)
+        if word.isupper() and len(word) > 1:
+            cleaned_words.append(word)
+        # Keep words with internal caps (like McDonald's)
+        elif any(c.isupper() for c in word[1:]):
+            cleaned_words.append(word)
+        else:
+            cleaned_words.append(word.capitalize())
+    
+    return ' '.join(cleaned_words)
+
+def merge_similar_entities(entities):
+    """Merge entities that are substrings or very similar."""
+    merged = []
+    skip_indices = set()
+    
+    for i, entity in enumerate(entities):
+        if i in skip_indices:
+            continue
+        
+        # Check if this entity is a substring of any other
+        is_substring = False
+        for j, other in enumerate(entities):
+            if i != j and j not in skip_indices:
+                # If current entity is part of a longer entity, skip it
+                if entity.lower() in other.lower() and len(entity) < len(other):
+                    is_substring = True
+                    break
+                # If other entity is part of current, mark it for skipping
+                elif other.lower() in entity.lower() and len(other) < len(entity):
+                    skip_indices.add(j)
+        
+        if not is_substring:
+            merged.append(entity)
+    
+    return merged
 
 def filter_valid_entities(entities):
     """Filter out invalid or low-quality entities."""
@@ -42,11 +84,15 @@ def filter_valid_entities(entities):
         cleaned = clean_entity(entity)
         
         # Skip if too short or invalid
-        if len(cleaned) < 2 or cleaned.lower() in ['the', 'a', 'an', 'and', 'or']:
+        if len(cleaned) < 2:
+            continue
+            
+        # Skip common words and articles
+        if cleaned.lower() in ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for']:
             continue
         
-        # Skip single characters or numbers
-        if len(cleaned) == 1 or cleaned.isdigit():
+        # Skip single characters or pure numbers
+        if len(cleaned) == 1 or cleaned.replace(',', '').isdigit():
             continue
         
         # Skip if already seen (case-insensitive)
@@ -55,6 +101,9 @@ def filter_valid_entities(entities):
         
         seen.add(cleaned.lower())
         valid.append(cleaned)
+    
+    # Merge similar entities
+    valid = merge_similar_entities(valid)
     
     return valid
 
@@ -80,14 +129,14 @@ def extract_entities(text):
             ent['word'] 
             for ent in results 
             if ent['entity_group'] in ["PER", "LOC", "ORG", "MISC"] 
-            and ent.get('score', 0) > 0.85  # Higher confidence threshold
+            and ent.get('score', 0) > 0.80  # Slightly lower threshold for better recall
         ]
         
         # Filter and clean entities
         entities = filter_valid_entities(raw_entities)
         
-        # Limit to top 10 most relevant
-        entities = entities[:10]
+        # Limit to top 15 most relevant (increased from 10)
+        entities = entities[:15]
         
         print(f"✅ Extracted {len(entities)} entities: {entities[:5]}")
         return entities

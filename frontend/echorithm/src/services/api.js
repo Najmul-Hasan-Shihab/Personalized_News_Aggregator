@@ -327,4 +327,55 @@ export const deleteReadingList = async (listName) => {
   }
 };
 
+// === Analytics APIs ===
+export const trackReadingSession = async (sessionData) => {
+  try {
+    const response = await apiClient.post("/analytics/track-session/", sessionData);
+    return response.data;
+  } catch (error) {
+    console.error("Error tracking reading session:", error);
+    throw error;
+  }
+};
+
+export const fetchReadingStats = async (days = 30) => {
+  try {
+    const response = await apiClient.get(`/analytics/stats/?days=${days}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching reading stats:", error);
+    throw error;
+  }
+};
+
+export const fetchReadingTimeline = async (days = 30) => {
+  try {
+    const response = await apiClient.get(`/analytics/timeline/?days=${days}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching reading timeline:", error);
+    throw error;
+  }
+};
+
+export const fetchPeakReadingTimes = async (days = 30) => {
+  try {
+    const response = await apiClient.get(`/analytics/peak-times/?days=${days}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching peak reading times:", error);
+    throw error;
+  }
+};
+
+export const fetchPersonalizedInsights = async (days = 30) => {
+  try {
+    const response = await apiClient.get(`/analytics/insights/?days=${days}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching personalized insights:", error);
+    throw error;
+  }
+};
+
 export default apiClient;

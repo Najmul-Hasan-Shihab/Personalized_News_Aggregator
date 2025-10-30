@@ -44,9 +44,14 @@ def aggregate_and_store_articles():
         description = article.get("description", "")
         full_content = clean_article_content(content, description)
         
-        # Skip if insufficient content
-        if len(full_content.split()) < 30:
-            print(f"⏭️ Skipped (too short): {article['title'][:50]}")
+        # Skip only if content is completely empty or just placeholder
+        if not full_content or full_content == "Article content unavailable.":
+            # Try using title + description as last resort
+            full_content = f"{article.get('title', '')} {description}".strip()
+        
+        # Very lenient check - only skip if truly empty (less than 10 words)
+        if len(full_content.split()) < 10:
+            print(f"⏭️ Skipped (no content): {article['title'][:50]}")
             continue
 
         print(f"\n🔄 Processing: {article['title'][:60]}...")

@@ -11,6 +11,10 @@ dnspython==2.7.0
 # HTTP Requests
 requests==2.32.3
 
+# Web Scraping
+beautifulsoup4==4.12.3
+lxml==5.1.0
+
 # AI/ML Libraries
 torch==2.3.0
 transformers==4.37.2
