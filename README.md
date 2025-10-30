@@ -1,326 +1,649 @@
-# 🧠 Echorithm - AI-Powered News Aggregator# 🧠 Echorithm - AI-Powered Personalized News Aggregator
+# 🧠 Echorithm – AI-Powered Personalized News Aggregator# 🧠 Echorithm - AI-Powered News Aggregator# 🧠 Echorithm - AI-Powered Personalized News Aggregator
 
 
 
-> Intelligent news platform combining multiple sources with advanced AI for summarization, sentiment analysis, and personalized recommendations.> An intelligent news aggregation platform that combines multiple news sources with advanced AI/ML capabilities for summarization, sentiment analysis, entity recognition, and personalized recommendations.
+> An intelligent news aggregation platform that combines multiple sources with advanced AI/ML capabilities for **summarization**, **sentiment analysis**, **entity recognition**, and **personalized recommendations**.
 
 
 
-[![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)](https://www.python.org/)[![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)](https://www.python.org/)> Intelligent news platform combining multiple sources with advanced AI for summarization, sentiment analysis, and personalized recommendations.> An intelligent news aggregation platform that combines multiple news sources with advanced AI/ML capabilities for summarization, sentiment analysis, entity recognition, and personalized recommendations.
 
-[![Django](https://img.shields.io/badge/Django-5.2.3-green.svg)](https://www.djangoproject.com/)[![Django](https://img.shields.io/badge/Django-5.2.3-green.svg)](https://www.djangoproject.com/)
+[![Django](https://img.shields.io/badge/Django-5.2.3-green.svg)](https://www.djangoproject.com/)
 
-[![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)[![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://react.dev/)
 
-[![MongoDB](https://img.shields.io/badge/MongoDB-7.0+-green.svg)](https://www.mongodb.com/)[![MongoDB](https://img.shields.io/badge/MongoDB-7.0+-green.svg)](https://www.mongodb.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-7.0+-green.svg)](https://www.mongodb.com/)
+
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)[![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)](https://www.python.org/)[![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)](https://www.python.org/)
+
+
+
+---[![Django](https://img.shields.io/badge/Django-5.2.3-green.svg)](https://www.djangoproject.com/)[![Django](https://img.shields.io/badge/Django-5.2.3-green.svg)](https://www.djangoproject.com/)
+
+
+
+## 📖 Overview[![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)[![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
+
+
+
+**Echorithm** is an AI-driven news aggregator that curates, analyzes, and personalizes news content for users.  [![MongoDB](https://img.shields.io/badge/MongoDB-7.0+-green.svg)](https://www.mongodb.com/)[![MongoDB](https://img.shields.io/badge/MongoDB-7.0+-green.svg)](https://www.mongodb.com/)
+
+It aggregates articles from multiple APIs and uses transformer-based models to summarize, classify, and deliver insights tailored to each user's reading habits.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+**Core Capabilities**
 
+- AI-powered article summarization (BART / T5)
 
-------
+- Sentiment analysis with RoBERTa
 
+- Named-entity recognition with BERT------
 
+- Category classification via zero-shot learning
+
+- Personalized recommendations based on reading history
+
+- Analytics dashboard with reading insights
 
 ## 📸 Screenshots## � Screenshots
 
+---
 
+
+
+## ✨ Key Features
 
 <div align="center"><div align="center">
 
-  
+### 🤖 AI Processing
 
-### Home Feed### Home Page - Personalized Feed
+- **Summarization:** Concise AI-generated summaries    
+
+- **Sentiment Analysis:** Positive / Neutral / Negative tagging  
+
+- **Entity Recognition:** People, organizations, locations  ### Home Feed### Home Page - Personalized Feed
+
+- **Auto-Categorization:** Topics like Tech, Sports, Business, etc.
 
 ![Home Page](./assets/screenshots/home-page.png)![Home Page](./assets/screenshots/home-page.png)
 
-*AI-curated news feed with sentiment analysis and category tags*
+### 📰 Aggregation
 
-### Article Reader
+- Unified feed from **NewsAPI**, **GNews**, and **MediaStack***AI-curated news feed with sentiment analysis and category tags*
 
-![Article Reader](./assets/screenshots/article-reader.png)### Article Reader with Embedded View
+- Smart web-scraping fallback for truncated articles
 
-![Article Reader](./assets/screenshots/article-reader.png)
+- Real-time deduplication and metadata enrichment### Article Reader
 
-### Analytics Dashboard*Embedded article reader with live reading time tracking*
 
-![Analytics](./assets/screenshots/analytics-dashboard.png)
 
-### Advanced Analytics Dashboard
+### 👤 Personalization![Article Reader](./assets/screenshots/article-reader.png)### Article Reader with Embedded View
+
+- Preference-based feed and recommendations  
+
+- TF-IDF + cosine similarity suggestions  ![Article Reader](./assets/screenshots/article-reader.png)
+
+- Reading history tracking and analytics  
+
+- Bookmarking and reading lists  ### Analytics Dashboard*Embedded article reader with live reading time tracking*
+
+
+
+### 📊 Analytics & Insights![Analytics](./assets/screenshots/analytics-dashboard.png)
+
+- Reading time, completion rate, and streaks  
+
+- 14-day activity timeline and peak reading hours  ### Advanced Analytics Dashboard
+
+- Personalized insights and category breakdowns  
 
 ### User Profile![Analytics Dashboard](./assets/screenshots/analytics-dashboard.png)
 
-![Profile](./assets/screenshots/user-profile.png)*Comprehensive reading habits analytics with insights and visualizations*
+### 🎨 Modern Interface
+
+- Responsive React 19 frontend with Vite  ![Profile](./assets/screenshots/user-profile.png)*Comprehensive reading habits analytics with insights and visualizations*
+
+- Embedded article reader with live reading timer  
+
+- Dark-mode ready UI with gradient theme  
 
 
 
-</div>### User Profile & Preferences
-
-![User Profile](./assets/screenshots/user-profile.png)
-
----*Customizable profile with reading preferences and interests*
+---</div>### User Profile & Preferences
 
 
 
-## 🎯 About</div>
+## 🛠️ Tech Stack![User Profile](./assets/screenshots/user-profile.png)
 
 
+
+| Layer | Technologies |---*Customizable profile with reading preferences and interests*
+
+|-------|---------------|
+
+| **Frontend** | React 19.1.0, Vite 7, React Router 7, Axios |
+
+| **Backend** | Python 3.13+, Django 5.2.3, Django REST Framework |
+
+| **Database** | MongoDB (content, analytics), SQLite (auth) |## 🎯 About</div>
+
+| **AI/ML** | PyTorch, Hugging Face Transformers, Scikit-learn |
+
+| **External APIs** | NewsAPI, GNews, MediaStack |
+
+| **Scraping** | BeautifulSoup4 + lxml |
 
 **Echorithm** is an AI-powered news aggregator developed as a Software Engineering final year project (2024-2025). It aggregates news from multiple sources, processes content using machine learning, and delivers personalized reading experiences.---
 
+---
 
+
+
+## 🏗️ System Architecture
 
 **Problem:** Traditional news platforms overwhelm users with unfiltered content.  ## �📋 Table of Contents
 
-**Solution:** AI-driven aggregation with smart summarization, sentiment analysis, and personalized recommendations.
-
-- [About](#about)
-
----- [Key Features](#key-features)
-
-- [Tech Stack](#tech-stack)
-
-## ✨ Features- [Architecture](#architecture)
-
-- [AI/ML Capabilities](#aiml-capabilities)
-
-- **🤖 AI Processing:** Summarization (BART/T5), Sentiment Analysis (RoBERTa), NER (BERT), Auto-categorization- [Getting Started](#getting-started)
-
-- **📰 Multi-Source:** NewsAPI, GNews, MediaStack + web scraping for full articles- [Project Structure](#project-structure)
-
-- **👤 Personalization:** User preferences, reading history, ML recommendations (TF-IDF, cosine similarity)- [API Documentation](#api-documentation)
-
-- **📊 Analytics:** Reading stats, activity timeline, peak times, personalized insights- [Future Enhancements](#future-enhancements)
-
-- **🔖 Organization:** Bookmarks, reading lists, advanced search with suggestions- [Contributors](#contributors)
-
-- **⚡ Modern UI:** React 19, responsive design, embedded reader with live timer- [License](#license)
-
-
-
-------
-
-
-
-## 🛠️ Tech Stack## 🎯 About
-
-
-
-### Backend**Echorithm** is a comprehensive news aggregation platform that leverages artificial intelligence to provide users with a personalized, intelligent news consumption experience. Built as a Software Engineering final year project, it demonstrates the integration of modern web technologies with advanced AI/ML capabilities.
-
-| Technology | Purpose |
-
-|------------|---------|### 🎓 Project Context
-
-| Python 3.13+ | Programming language |- **Type**: Final Year Software Engineering Project
-
-| Django 5.2.3 | Web framework |- **Duration**: 2024-2025
-
-| Django REST Framework | REST API |- **Objective**: Create an intelligent news platform that combines multiple data sources with AI-driven features for enhanced user experience
-
-| MongoDB 7.0+ | Document database (articles, analytics) |
-
-| SQLite | Relational database (Django auth) |### 🌟 Why Echorithm?
-
-| PyTorch | ML framework |
-
-| Transformers (HuggingFace) | Pre-trained AI models |Traditional news platforms overwhelm users with information without context. Echorithm solves this by:
-
-| BeautifulSoup4 | Web scraping |- **Aggregating** news from multiple trusted sources into one unified feed
-
-| Scikit-learn | ML utilities (TF-IDF, cosine similarity) |- **Understanding** article content through AI (sentiment, entities, topics)
-
-- **Personalizing** content based on user interests and reading habits
-
-### Frontend- **Tracking** reading patterns to provide insights and recommendations
-
-| Technology | Purpose |- **Enhancing** articles with summaries and metadata for quick consumption
-
-|------------|---------|
-
-| React 19.1.0 | UI library |---
-
-| Vite 7.0.0 | Build tool & dev server |
-
-| React Router 7.6.3 | Client-side routing |## ✨ Key Features
-
-| Axios 1.8.0 | HTTP client |
-
-### 🤖 AI-Powered Content Processing
-
-### AI/ML Models- **Smart Summarization** - Automatic article summarization using BART-large-CNN and T5 models
-
-| Model | Task | Provider |- **Sentiment Analysis** - Real-time sentiment detection (Positive/Neutral/Negative) using RoBERTa
-
-|-------|------|----------|- **Named Entity Recognition** - Extracts people, organizations, and locations using BERT-NER
-
-| facebook/bart-large-cnn | Summarization | HuggingFace |- **Intelligent Categorization** - Auto-categorizes articles into topics (Technology, Sports, Business, etc.)
-
-| t5-small | Summarization (fallback) | HuggingFace |- **Web Scraping** - Fetches full article content when APIs provide truncated text
-
-| cardiffnlp/twitter-roberta-base-sentiment-latest | Sentiment Analysis | HuggingFace |
-
-| dslim/bert-base-NER | Named Entity Recognition | HuggingFace |### 📰 News Aggregation
-
-| facebook/bart-large-mnli | Zero-shot Classification | HuggingFace |- **Multi-Source Integration** - Combines news from NewsAPI, GNews, and MediaStack
-
-- **Real-time Updates** - Automatic news refresh and deduplication
-
-### External APIs- **Rich Metadata** - Source attribution, author information, publication dates
-
-- NewsAPI (news aggregation)- **High-Quality Images** - Only articles with images for better visual experience
-
-- GNews (news aggregation)
-
-- MediaStack (news aggregation)### 👤 Personalization & Recommendations
-
-- **User Preferences** - Customizable interests and category preferences
-
----- **Reading History** - Tracks articles read for better recommendations
-
-- **ML-Based Recommendations** - TF-IDF and cosine similarity for content suggestions
-
-## 🏗️ Architecture- **Bookmarking System** - Save articles for later reading
-
-- **Reading Lists** - Organize articles into custom collections
-
 ```
 
-┌─────────────┐### 📊 Advanced Analytics
+┌───────────────────────────────┐**Solution:** AI-driven aggregation with smart summarization, sentiment analysis, and personalized recommendations.
 
-│   Frontend  │  React 19 + Vite- **Reading Statistics** - Total articles read, time spent, completion rates
+│      React Frontend           │
 
-│   (React)   │  • News Feed • Reader • Analytics- **Activity Timeline** - 14-day visual timeline of reading habits
+│  ├── Home / ForYou / Profile  │- [About](#about)
 
-└──────┬──────┘  • Profile • Search • Bookmarks- **Peak Reading Times** - Identifies most active hours and days
+│  ├── Analytics / Bookmarks    │
 
-       │- **Category Breakdown** - Visual distribution of reading preferences
+│  └── Auth / Search            │---- [Key Features](#key-features)
 
-       │ HTTP/REST (Axios)- **Personalized Insights** - AI-generated insights about reading behavior
+└───────────────┬───────────────┘
 
-       │
+                │ Axios (REST)- [Tech Stack](#tech-stack)
 
-┌──────▼──────┐### 🎨 Modern User Experience
+┌───────────────▼───────────────┐
 
-│   Backend   │  Django 5.2.3 + DRF- **Embedded Article Reader** - Read articles in modal with iframe support
+│      Django REST API          │## ✨ Features- [Architecture](#architecture)
 
-│  (Django)   │  • REST API Endpoints- **Live Reading Timer** - Tracks actual time spent on each article
+│  ├── Authentication & Users   │
 
-└──────┬──────┘  • JWT Authentication- **Sentiment Stickers** - Visual sentiment indicators on cards
+│  ├── Article Aggregation      │- [AI/ML Capabilities](#aiml-capabilities)
 
-       │         • Request Processing- **Responsive Design** - Optimized for desktop, tablet, and mobile
+│  ├── AI Processing Pipeline   │
 
-       ├─────────────────┬─────────────────┐- **Dark Mode Ready** - Modern purple gradient theme
+│  └── Analytics Endpoints      │- **🤖 AI Processing:** Summarization (BART/T5), Sentiment Analysis (RoBERTa), NER (BERT), Auto-categorization- [Getting Started](#getting-started)
 
-       │                 │                 │
+└───────────────┬───────────────┘
 
-┌──────▼──────┐  ┌──────▼──────┐  ┌──────▼──────┐### 🔐 Authentication & Security
+                │- **📰 Multi-Source:** NewsAPI, GNews, MediaStack + web scraping for full articles- [Project Structure](#project-structure)
 
-│  MongoDB    │  │   SQLite    │  │  AI Models  │- **JWT Authentication** - Secure token-based authentication
+┌───────────────▼───────────────┐
 
-│  (NoSQL)    │  │   (SQL)     │  │  (PyTorch)  │- **User Registration** - Complete signup with validation
+│      MongoDB Database         │- **👤 Personalization:** User preferences, reading history, ML recommendations (TF-IDF, cosine similarity)- [API Documentation](#api-documentation)
 
-└─────────────┘  └─────────────┘  └─────────────┘- **Protected Routes** - Authentication-required endpoints
+│  • Articles                   │
 
- • Articles       • Users          • BART (Summarization)- **CORS Configuration** - Properly configured cross-origin requests
+│  • Reading History            │- **📊 Analytics:** Reading stats, activity timeline, peak times, personalized insights- [Future Enhancements](#future-enhancements)
 
- • Analytics      • Auth            • RoBERTa (Sentiment)
+│  • Analytics & Preferences    │
 
- • History        • Sessions        • BERT (NER)---
+└───────────────┬───────────────┘- **🔖 Organization:** Bookmarks, reading lists, advanced search with suggestions- [Contributors](#contributors)
 
- • Preferences                      • Classification
+                │
 
-                                    • Recommendations## 🛠 Tech Stack
+┌───────────────▼───────────────┐- **⚡ Modern UI:** React 19, responsive design, embedded reader with live timer- [License](#license)
 
-       │
+│      External APIs            │
 
-┌──────▼──────────────────┐### Backend
+│  NewsAPI • GNews • MediaStack │
 
-│   External Services     │| Technology | Version | Purpose |
+└───────────────────────────────┘
 
-│  • NewsAPI • GNews      │|------------|---------|---------|
+```------
 
-│  • MediaStack           │| Python | 3.13+ | Core programming language |
 
-│  • Web Scraping         │| Django | 5.2.3 | Web framework |
 
-└─────────────────────────┘| Django REST Framework | 3.15.0 | REST API development |
+---
 
-```| MongoDB | 7.0+ | NoSQL database |
 
-| PyMongo | 4.13.0 | MongoDB driver |
 
----| PyTorch | 2.3.0 | Deep learning framework |
+## 🚀 Getting Started## 🛠️ Tech Stack## 🎯 About
 
-| Transformers | 4.37.2 | Hugging Face models |
 
-## 🚀 Quick Start| BeautifulSoup4 | 4.14.2 | Web scraping |
-
-| Scikit-learn | 1.5.0 | ML algorithms |
 
 ### Prerequisites
 
-- Python 3.13+### AI/ML Models
+- Python 3.13+  
 
-- Node.js 18+| Model | Task | HuggingFace ID |
+- Node.js 18+  ### Backend**Echorithm** is a comprehensive news aggregation platform that leverages artificial intelligence to provide users with a personalized, intelligent news consumption experience. Built as a Software Engineering final year project, it demonstrates the integration of modern web technologies with advanced AI/ML capabilities.
 
-- MongoDB 7.0+ (local or MongoDB Atlas)|-------|------|----------------|
+- MongoDB 7.0+ (local or Atlas)  
 
-- Git| BART-large-CNN | Summarization | facebook/bart-large-cnn |
+- Git| Technology | Purpose |
 
-| T5-small | Fallback Summarization | t5-small |
 
-### 1. Clone Repository| RoBERTa | Sentiment Analysis | cardiffnlp/twitter-roberta-base-sentiment-latest |
 
-```bash| BERT-NER | Named Entity Recognition | dslim/bert-base-NER |
+### 1️⃣ Clone Repository|------------|---------|### 🎓 Project Context
 
-git clone https://github.com/Najmul-Hasan-Shihab/Personalized_News_Aggregator.git| BART-MNLI | Zero-shot Classification | facebook/bart-large-mnli |
+```bash
+
+git clone https://github.com/Najmul-Hasan-Shihab/Personalized_News_Aggregator.git| Python 3.13+ | Programming language |- **Type**: Final Year Software Engineering Project
 
 cd Personalized_News_Aggregator
 
+```| Django 5.2.3 | Web framework |- **Duration**: 2024-2025
+
+
+
+### 2️⃣ Backend Setup| Django REST Framework | REST API |- **Objective**: Create an intelligent news platform that combines multiple data sources with AI-driven features for enhanced user experience
+
+```bash
+
+cd backend| MongoDB 7.0+ | Document database (articles, analytics) |
+
+python -m venv venv
+
+.\venv\Scripts\activate      # Windows| SQLite | Relational database (Django auth) |### 🌟 Why Echorithm?
+
+# source venv/bin/activate   # Linux/Mac
+
+pip install -r requirements.txt| PyTorch | ML framework |
+
+```
+
+| Transformers (HuggingFace) | Pre-trained AI models |Traditional news platforms overwhelm users with information without context. Echorithm solves this by:
+
+Create `.env` in `backend/`:
+
+| BeautifulSoup4 | Web scraping |- **Aggregating** news from multiple trusted sources into one unified feed
+
+```env
+
+SECRET_KEY=your-django-secret| Scikit-learn | ML utilities (TF-IDF, cosine similarity) |- **Understanding** article content through AI (sentiment, entities, topics)
+
+DEBUG=True
+
+MONGODB_URI=mongodb://localhost:27017/- **Personalizing** content based on user interests and reading habits
+
+MONGODB_DB_NAME=news_aggregator_db
+
+### Frontend- **Tracking** reading patterns to provide insights and recommendations
+
+NEWSAPI_KEY=your_newsapi_key
+
+GNEWS_KEY=your_gnews_key| Technology | Purpose |- **Enhancing** articles with summaries and metadata for quick consumption
+
+MEDIASTACK_KEY=your_mediastack_key
+
+|------------|---------|
+
+CORS_ALLOWED_ORIGINS=http://localhost:5173
+
+```| React 19.1.0 | UI library |---
+
+
+
+Run migrations:| Vite 7.0.0 | Build tool & dev server |
+
+
+
+```bash| React Router 7.6.3 | Client-side routing |## ✨ Key Features
+
+python manage.py migrate
+
+python manage.py runserver| Axios 1.8.0 | HTTP client |
+
+```
+
+### 🤖 AI-Powered Content Processing
+
+### 3️⃣ Frontend Setup
+
+```bash### AI/ML Models- **Smart Summarization** - Automatic article summarization using BART-large-CNN and T5 models
+
+cd frontend/echorithm
+
+npm install| Model | Task | Provider |- **Sentiment Analysis** - Real-time sentiment detection (Positive/Neutral/Negative) using RoBERTa
+
+npm run dev
+
+```|-------|------|----------|- **Named Entity Recognition** - Extracts people, organizations, and locations using BERT-NER
+
+
+
+Access the app at **http://localhost:5173**| facebook/bart-large-cnn | Summarization | HuggingFace |- **Intelligent Categorization** - Auto-categorizes articles into topics (Technology, Sports, Business, etc.)
+
+
+
+⚠️ **On first run, AI models will download (~2–3 GB).**| t5-small | Summarization (fallback) | HuggingFace |- **Web Scraping** - Fetches full article content when APIs provide truncated text
+
+
+
+---| cardiffnlp/twitter-roberta-base-sentiment-latest | Sentiment Analysis | HuggingFace |
+
+
+
+## 📡 API Overview| dslim/bert-base-NER | Named Entity Recognition | HuggingFace |### 📰 News Aggregation
+
+
+
+### Authentication| facebook/bart-large-mnli | Zero-shot Classification | HuggingFace |- **Multi-Source Integration** - Combines news from NewsAPI, GNews, and MediaStack
+
+| Method | Endpoint | Description |
+
+|--------|----------|-------------|- **Real-time Updates** - Automatic news refresh and deduplication
+
+| POST | `/register/` | Register user |
+
+| POST | `/login/` | Login & get JWT |### External APIs- **Rich Metadata** - Source attribution, author information, publication dates
+
+| POST | `/token/refresh/` | Refresh token |
+
+- NewsAPI (news aggregation)- **High-Quality Images** - Only articles with images for better visual experience
+
+### Articles
+
+| Method | Endpoint | Description |- GNews (news aggregation)
+
+|--------|----------|-------------|
+
+| GET | `/articles/` | Get all articles |- MediaStack (news aggregation)### 👤 Personalization & Recommendations
+
+| GET | `/articles/update/` | Fetch latest articles |
+
+| GET | `/articles/search/?q=term` | Search articles |- **User Preferences** - Customizable interests and category preferences
+
+| POST | `/articles/track/` | Track article view |
+
+---- **Reading History** - Tracks articles read for better recommendations
+
+### Preferences & Bookmarks
+
+| Method | Endpoint | Description |- **ML-Based Recommendations** - TF-IDF and cosine similarity for content suggestions
+
+|--------|----------|-------------|
+
+| GET | `/preferences/` | Get user preferences |## 🏗️ Architecture- **Bookmarking System** - Save articles for later reading
+
+| POST | `/preferences/` | Update preferences |
+
+| GET | `/bookmarks/` | List bookmarks |- **Reading Lists** - Organize articles into custom collections
+
+| POST | `/bookmarks/` | Add bookmark |
+
+| DELETE | `/bookmarks/{id}/` | Remove bookmark |```
+
+
+
+### Analytics┌─────────────┐### 📊 Advanced Analytics
+
+| Method | Endpoint | Description |
+
+|--------|----------|-------------|│   Frontend  │  React 19 + Vite- **Reading Statistics** - Total articles read, time spent, completion rates
+
+| POST | `/analytics/track-session/` | Track reading session |
+
+| GET | `/analytics/stats/` | Reading statistics |│   (React)   │  • News Feed • Reader • Analytics- **Activity Timeline** - 14-day visual timeline of reading habits
+
+| GET | `/analytics/timeline/` | Activity timeline |
+
+| GET | `/analytics/insights/` | AI-generated insights |└──────┬──────┘  • Profile • Search • Bookmarks- **Peak Reading Times** - Identifies most active hours and days
+
+
+
+**All authenticated requests require:**       │- **Category Breakdown** - Visual distribution of reading preferences
+
+
+
+```       │ HTTP/REST (Axios)- **Personalized Insights** - AI-generated insights about reading behavior
+
+Authorization: Bearer <access_token>
+
+```       │
+
+
+
+---┌──────▼──────┐### 🎨 Modern User Experience
+
+
+
+## 🤖 AI/ML Pipeline│   Backend   │  Django 5.2.3 + DRF- **Embedded Article Reader** - Read articles in modal with iframe support
+
+
+
+| Stage | Model | Task |│  (Django)   │  • REST API Endpoints- **Live Reading Timer** - Tracks actual time spent on each article
+
+|-------|-------|------|
+
+| Summarization | `facebook/bart-large-cnn`, `t5-small` | Text summarization |└──────┬──────┘  • JWT Authentication- **Sentiment Stickers** - Visual sentiment indicators on cards
+
+| Sentiment | `cardiffnlp/twitter-roberta-base-sentiment-latest` | Sentiment analysis |
+
+| NER | `dslim/bert-base-NER` | Entity recognition |       │         • Request Processing- **Responsive Design** - Optimized for desktop, tablet, and mobile
+
+| Classification | `facebook/bart-large-mnli` | Zero-shot topic classification |
+
+       ├─────────────────┬─────────────────┐- **Dark Mode Ready** - Modern purple gradient theme
+
+### Pipeline Flow
+
+       │                 │                 │
+
+1. Fetch news from APIs
+
+2. Scrape full content if truncated┌──────▼──────┐  ┌──────▼──────┐  ┌──────▼──────┐### 🔐 Authentication & Security
+
+3. Generate summaries
+
+4. Run sentiment and entity extraction│  MongoDB    │  │   SQLite    │  │  AI Models  │- **JWT Authentication** - Secure token-based authentication
+
+5. Classify category
+
+6. Store processed data in MongoDB│  (NoSQL)    │  │   (SQL)     │  │  (PyTorch)  │- **User Registration** - Complete signup with validation
+
+7. Generate recommendations and insights
+
+└─────────────┘  └─────────────┘  └─────────────┘- **Protected Routes** - Authentication-required endpoints
+
+### Performance
+
+ • Articles       • Users          • BART (Summarization)- **CORS Configuration** - Properly configured cross-origin requests
+
+- Avg. **10–15 s** per article (CPU)
+
+- GPU acceleration supported (CUDA) • Analytics      • Auth            • RoBERTa (Sentiment)
+
+
+
+--- • History        • Sessions        • BERT (NER)---
+
+
+
+## 🧠 Analytics Dashboard Highlights • Preferences                      • Classification
+
+
+
+- Total articles read                                    • Recommendations## 🛠 Tech Stack
+
+- Reading time & completion rate
+
+- 14-day activity visualization       │
+
+- Category-wise breakdown
+
+- Personalized insights (reading streaks, peak hours)┌──────▼──────────────────┐### Backend
+
+
+
+---│   External Services     │| Technology | Version | Purpose |
+
+
+
+## 📸 Screenshots│  • NewsAPI • GNews      │|------------|---------|---------|
+
+
+
+<div align="center">│  • MediaStack           │| Python | 3.13+ | Core programming language |
+
+
+
+| Home Feed | Article Reader | Analytics Dashboard | User Profile |│  • Web Scraping         │| Django | 5.2.3 | Web framework |
+
+|-----------|----------------|---------------------|--------------|
+
+| ![Home](./assets/screenshots/home-page.png) | ![Reader](./assets/screenshots/article-reader.png) | ![Analytics](./assets/screenshots/analytics-dashboard.png) | ![Profile](./assets/screenshots/user-profile.png) |└─────────────────────────┘| Django REST Framework | 3.15.0 | REST API development |
+
+
+
+</div>```| MongoDB | 7.0+ | NoSQL database |
+
+
+
+---| PyMongo | 4.13.0 | MongoDB driver |
+
+
+
+## 🔮 Roadmap---| PyTorch | 2.3.0 | Deep learning framework |
+
+
+
+### Short-Term| Transformers | 4.37.2 | Hugging Face models |
+
+
+
+- [ ] Social sharing## 🚀 Quick Start| BeautifulSoup4 | 4.14.2 | Web scraping |
+
+- [ ] Email newsletter
+
+- [ ] Push notifications| Scikit-learn | 1.5.0 | ML algorithms |
+
+- [ ] Multi-language support
+
+### Prerequisites
+
+### Long-Term
+
+- Python 3.13+### AI/ML Models
+
+- [ ] Voice article reading (TTS)
+
+- [ ] Advanced ML recommendations- Node.js 18+| Model | Task | HuggingFace ID |
+
+- [ ] Mobile app (React Native)
+
+- [ ] Real-time live updates (WebSocket)- MongoDB 7.0+ (local or MongoDB Atlas)|-------|------|----------------|
+
+
+
+---- Git| BART-large-CNN | Summarization | facebook/bart-large-cnn |
+
+
+
+## 🤝 Contributing| T5-small | Fallback Summarization | t5-small |
+
+
+
+Contributions are welcome!### 1. Clone Repository| RoBERTa | Sentiment Analysis | cardiffnlp/twitter-roberta-base-sentiment-latest |
+
+
+
+1. Fork the repo```bash| BERT-NER | Named Entity Recognition | dslim/bert-base-NER |
+
+2. Create a feature branch (`git checkout -b feature/Name`)
+
+3. Commit (`git commit -m "Add feature"`)git clone https://github.com/Najmul-Hasan-Shihab/Personalized_News_Aggregator.git| BART-MNLI | Zero-shot Classification | facebook/bart-large-mnli |
+
+4. Push and open a PR
+
+cd Personalized_News_Aggregator
+
+**Please follow:**
+
 ```### Frontend
 
-| Technology | Version | Purpose |
+- PEP 8 for Python
+
+- Prettier + ESLint for React| Technology | Version | Purpose |
+
+- Add meaningful commits and update docs
 
 ### 2. Backend Setup|------------|---------|---------|
 
+---
+
 ```bash| React | 19.1.0 | UI framework |
+
+## 👥 Authors
 
 cd backend| Vite | 7.0.0 | Build tool |
 
-python -m venv venv| React Router | 7.6.3 | Client-side routing |
+**Najmul Hasan Shihab** – Full-Stack Developer, ML Integration  
 
-.\venv\Scripts\Activate.ps1  # Windows PowerShell| Axios | 1.7.9 | HTTP client |
-
-pip install -r requirements.txt| CSS3 | - | Styling |
+GitHub: [@Najmul-Hasan-Shihab](https://github.com/Najmul-Hasan-Shihab)python -m venv venv| React Router | 7.6.3 | Client-side routing |
 
 
 
-# Create .env file### External APIs
+### Contributors.\venv\Scripts\Activate.ps1  # Windows PowerShell| Axios | 1.7.9 | HTTP client |
 
-cp .env.example .env- **NewsAPI** - Top headlines and news articles
 
-# Edit .env and add your API keys:- **GNews** - Global news aggregation
+
+- **Fahim** – Backend Developmentpip install -r requirements.txt| CSS3 | - | Styling |
+
+- **Miskat** – Frontend & UI Design
+
+- **Tasin** – Database & QA
+
+
+
+---# Create .env file### External APIs
+
+
+
+## 📜 Licensecp .env.example .env- **NewsAPI** - Top headlines and news articles
+
+
+
+This project is licensed under the MIT License.  # Edit .env and add your API keys:- **GNews** - Global news aggregation
+
+See [LICENSE](LICENSE) for details.
 
 # NEWSAPI_KEY=your_key_here- **MediaStack** - News data API
 
+---
+
 # GNEWS_KEY=your_key_here
+
+## 🙏 Acknowledgments
 
 # MEDIASTACK_KEY=your_key_here---
 
+- [Hugging Face](https://huggingface.co/) for transformer models
+
+- [NewsAPI](https://newsapi.org/), [GNews](https://gnews.io/), [MediaStack](https://mediastack.com/) for data sources
+
+- Django & React communities
+
+- MongoDB for NoSQL supportpython manage.py migrate## 🏗 Architecture
 
 
-python manage.py migrate## 🏗 Architecture
 
-python manage.py runserver
-
-```### System Architecture
+---python manage.py runserver
 
 
 
-### 3. Frontend Setup (New Terminal)```
+<div align="center">```### System Architecture
 
-```bash┌─────────────────────────────────────────────────────────────┐
+
+
+**Built with ❤️ using Python, Django, React, and AI**
+
+
+
+⭐ **If you find this project helpful, please give it a star!** ⭐### 3. Frontend Setup (New Terminal)```
+
+
+
+</div>```bash┌─────────────────────────────────────────────────────────────┐
+
 
 cd frontend/echorithm│                        Frontend (React)                      │
 
