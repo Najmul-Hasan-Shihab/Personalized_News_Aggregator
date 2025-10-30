@@ -213,4 +213,118 @@ export const fetchSearchSuggestions = async (limit = 10) => {
   }
 };
 
+// === Bookmarks APIs ===
+export const addBookmark = async (article) => {
+  try {
+    const response = await apiClient.post("/bookmarks/add/", {
+      article_url: article.url,
+      article_title: article.title,
+      article_data: article
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error adding bookmark:", error);
+    throw error;
+  }
+};
+
+export const removeBookmark = async (articleUrl) => {
+  try {
+    const response = await apiClient.delete("/bookmarks/remove/", {
+      data: { article_url: articleUrl }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error removing bookmark:", error);
+    throw error;
+  }
+};
+
+export const fetchBookmarks = async () => {
+  try {
+    const response = await apiClient.get("/bookmarks/");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching bookmarks:", error);
+    throw error;
+  }
+};
+
+export const checkBookmarkStatus = async (articleUrls) => {
+  try {
+    const params = new URLSearchParams();
+    articleUrls.forEach(url => params.append('urls[]', url));
+    const response = await apiClient.get(`/bookmarks/check/?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error checking bookmark status:", error);
+    return { bookmarks: {} };
+  }
+};
+
+// === Reading Lists APIs ===
+export const createReadingList = async (listName, description = '') => {
+  try {
+    const response = await apiClient.post("/reading-lists/create/", {
+      list_name: listName,
+      description
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating reading list:", error);
+    throw error;
+  }
+};
+
+export const fetchReadingLists = async () => {
+  try {
+    const response = await apiClient.get("/reading-lists/");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching reading lists:", error);
+    throw error;
+  }
+};
+
+export const addToReadingList = async (listName, article) => {
+  try {
+    const response = await apiClient.post("/reading-lists/add-article/", {
+      list_name: listName,
+      article_url: article.url,
+      article_data: article
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error adding to reading list:", error);
+    throw error;
+  }
+};
+
+export const removeFromReadingList = async (listName, articleUrl) => {
+  try {
+    const response = await apiClient.delete("/reading-lists/remove-article/", {
+      data: {
+        list_name: listName,
+        article_url: articleUrl
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error removing from reading list:", error);
+    throw error;
+  }
+};
+
+export const deleteReadingList = async (listName) => {
+  try {
+    const response = await apiClient.delete("/reading-lists/delete/", {
+      data: { list_name: listName }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting reading list:", error);
+    throw error;
+  }
+};
+
 export default apiClient;

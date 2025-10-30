@@ -78,7 +78,7 @@ const Header = () => {
             <ul className="header__nav-list">
               <li><Link to="/home">Home</Link></li>
               <li><Link to="/foryou">For You</Link></li>
-              <li><Link to="/following">Following</Link></li>
+              <li><Link to="/bookmarks">Bookmarks</Link></li>
             </ul>
           </nav>
 

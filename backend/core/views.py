@@ -1,7 +1,10 @@
 # views.py
 from django.http import JsonResponse
 from .utils import aggregate_and_store_articles
-from .db import articles_collection, user_pref_collection, reading_history_collection, search_history_collection
+from .db import (
+    articles_collection, user_pref_collection, reading_history_collection, 
+    search_history_collection, bookmarks_collection, reading_lists_collection
+)
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -482,3 +485,428 @@ def get_search_suggestions(request):
             "recent_searches": [],
             "popular_searches": []
         })
+
+
+# ============ BOOKMARKS ENDPOINTS ============
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_bookmark(request):
+    """Add an article to user's bookmarks."""
+    try:
+        user = request.user.username
+        article_url = request.data.get('article_url')
+        article_title = request.data.get('article_title', '')
+        article_data = request.data.get('article_data', {})
+        
+        if not article_url:
+            return Response({
+                "status": "error",
+                "message": "article_url is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if already bookmarked
+        existing = bookmarks_collection.find_one({
+            "username": user,
+            "article_url": article_url
+        })
+        
+        if existing:
+            return Response({
+                "status": "info",
+                "message": "Article already bookmarked"
+            })
+        
+        # Create bookmark entry
+        bookmark = {
+            "username": user,
+            "article_url": article_url,
+            "article_title": article_title,
+            "article_data": article_data,  # Store full article data
+            "created_at": datetime.utcnow(),
+            "tags": []  # Can be used for organization
+        }
+        
+        bookmarks_collection.insert_one(bookmark)
+        
+        logger.info(f" Added bookmark for user: {user}, article: {article_title[:50] if article_title else 'Unknown'}")
+        return Response({
+            "status": "success",
+            "message": "Article bookmarked successfully"
+        })
+    except Exception as e:
+        logger.error(f" Error adding bookmark: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Failed to add bookmark",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def remove_bookmark(request):
+    """Remove an article from user's bookmarks."""
+    try:
+        user = request.user.username
+        article_url = request.data.get('article_url')
+        
+        if not article_url:
+            return Response({
+                "status": "error",
+                "message": "article_url is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        result = bookmarks_collection.delete_one({
+            "username": user,
+            "article_url": article_url
+        })
+        
+        if result.deleted_count == 0:
+            return Response({
+                "status": "info",
+                "message": "Bookmark not found"
+            })
+        
+        logger.info(f" Removed bookmark for user: {user}")
+        return Response({
+            "status": "success",
+            "message": "Bookmark removed successfully"
+        })
+    except Exception as e:
+        logger.error(f" Error removing bookmark: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Failed to remove bookmark",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_bookmarks(request):
+    """Get all bookmarks for the current user."""
+    try:
+        user = request.user.username
+        
+        bookmarks_raw = list(bookmarks_collection.find(
+            {"username": user},
+            {"_id": 0}
+        ).sort("created_at", -1))
+        
+        # Flatten the article_data into the bookmark object
+        bookmarks = []
+        for bookmark in bookmarks_raw:
+            article_data = bookmark.get('article_data', {})
+            flattened = {
+                "article_url": bookmark.get('article_url'),
+                "created_at": bookmark.get('created_at'),
+                "title": article_data.get('title', bookmark.get('article_title', '')),
+                "summary": article_data.get('summary', ''),
+                "source": article_data.get('source', ''),
+                "author": article_data.get('author', ''),
+                "image_url": article_data.get('image_url') or article_data.get('urlToImage', ''),
+                "published_at": article_data.get('published_at') or article_data.get('publishedAt', ''),
+                "category": article_data.get('category', ''),
+                "sentiment": article_data.get('sentiment') or article_data.get('sentiment_label', ''),
+            }
+            bookmarks.append(flattened)
+        
+        logger.info(f" Retrieved {len(bookmarks)} bookmarks for user: {user}")
+        return Response({
+            "bookmarks": bookmarks,
+            "count": len(bookmarks)
+        })
+    except Exception as e:
+        logger.error(f" Error fetching bookmarks: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Failed to fetch bookmarks",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_bookmark_status(request):
+    """Check if specific articles are bookmarked."""
+    try:
+        user = request.user.username
+        article_urls = request.GET.getlist('urls[]')
+        
+        if not article_urls:
+            return Response({
+                "status": "error",
+                "message": "urls[] parameter is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        bookmarked = {}
+        for url in article_urls:
+            exists = bookmarks_collection.find_one({
+                "username": user,
+                "article_url": url
+            })
+            bookmarked[url] = exists is not None
+        
+        return Response({"bookmarks": bookmarked})
+    except Exception as e:
+        logger.error(f" Error checking bookmark status: {str(e)}")
+        return Response({
+            "bookmarks": {}
+        })
+
+
+# ============ READING LISTS ENDPOINTS ============
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_reading_list(request):
+    """Create a new reading list."""
+    try:
+        user = request.user.username
+        list_name = request.data.get('list_name', '').strip()
+        description = request.data.get('description', '')
+        
+        if not list_name:
+            return Response({
+                "status": "error",
+                "message": "list_name is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if list already exists
+        existing = reading_lists_collection.find_one({
+            "username": user,
+            "list_name": list_name
+        })
+        
+        if existing:
+            return Response({
+                "status": "error",
+                "message": "Reading list with this name already exists"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create reading list
+        reading_list = {
+            "username": user,
+            "list_name": list_name,
+            "description": description,
+            "articles": [],  # Array of article URLs
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        reading_lists_collection.insert_one(reading_list)
+        
+        logger.info(f" Created reading list '{list_name}' for user: {user}")
+        return Response({
+            "status": "success",
+            "message": "Reading list created successfully",
+            "reading_list": {
+                "list_name": list_name,
+                "description": description,
+                "articles": [],
+                "created_at": reading_list['created_at'],
+                "updated_at": reading_list['updated_at']
+            }
+        })
+    except Exception as e:
+        logger.error(f" Error creating reading list: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Failed to create reading list",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_reading_lists(request):
+    """Get all reading lists for the current user."""
+    try:
+        user = request.user.username
+        
+        lists_raw = list(reading_lists_collection.find(
+            {"username": user},
+            {"_id": 0}
+        ).sort("created_at", -1))
+        
+        # Flatten article data in each list
+        lists = []
+        for reading_list in lists_raw:
+            articles = reading_list.get('articles', [])
+            flattened_articles = []
+            
+            for article in articles:
+                flattened = {
+                    "article_url": article.get('url') or article.get('article_url', ''),
+                    "title": article.get('title', ''),
+                    "summary": article.get('summary', ''),
+                    "source": article.get('source', ''),
+                    "author": article.get('author', ''),
+                    "image_url": article.get('image_url') or article.get('urlToImage', ''),
+                    "published_at": article.get('published_at') or article.get('publishedAt', ''),
+                    "category": article.get('category', ''),
+                    "sentiment": article.get('sentiment') or article.get('sentiment_label', ''),
+                }
+                flattened_articles.append(flattened)
+            
+            lists.append({
+                "list_name": reading_list.get('list_name'),
+                "description": reading_list.get('description', ''),
+                "articles": flattened_articles,
+                "created_at": reading_list.get('created_at'),
+                "updated_at": reading_list.get('updated_at')
+            })
+        
+        logger.info(f" Retrieved {len(lists)} reading lists for user: {user}")
+        return Response({
+            "reading_lists": lists,
+            "count": len(lists)
+        })
+    except Exception as e:
+        logger.error(f" Error fetching reading lists: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Failed to fetch reading lists",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_reading_list(request):
+    """Add an article to a reading list."""
+    try:
+        user = request.user.username
+        list_name = request.data.get('list_name')
+        article_url = request.data.get('article_url')
+        article_data = request.data.get('article_data', {})
+        
+        if not list_name or not article_url:
+            return Response({
+                "status": "error",
+                "message": "list_name and article_url are required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if article already in list
+        existing_list = reading_lists_collection.find_one({
+            "username": user,
+            "list_name": list_name
+        })
+        
+        if not existing_list:
+            return Response({
+                "status": "error",
+                "message": "Reading list not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if article already in list
+        if any(article.get('url') == article_url for article in existing_list.get('articles', [])):
+            return Response({
+                "status": "info",
+                "message": "Article already in this list"
+            })
+        
+        # Add article to list
+        reading_lists_collection.update_one(
+            {"username": user, "list_name": list_name},
+            {
+                "$push": {"articles": article_data},
+                "$set": {"updated_at": datetime.utcnow()}
+            }
+        )
+        
+        logger.info(f" Added article to reading list '{list_name}' for user: {user}")
+        return Response({
+            "status": "success",
+            "message": "Article added to reading list"
+        })
+    except Exception as e:
+        logger.error(f" Error adding to reading list: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Failed to add article to reading list",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def remove_from_reading_list(request):
+    """Remove an article from a reading list."""
+    try:
+        user = request.user.username
+        list_name = request.data.get('list_name')
+        article_url = request.data.get('article_url')
+        
+        if not list_name or not article_url:
+            return Response({
+                "status": "error",
+                "message": "list_name and article_url are required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        result = reading_lists_collection.update_one(
+            {"username": user, "list_name": list_name},
+            {
+                "$pull": {"articles": {"url": article_url}},
+                "$set": {"updated_at": datetime.utcnow()}
+            }
+        )
+        
+        if result.modified_count == 0:
+            return Response({
+                "status": "info",
+                "message": "Article not found in list"
+            })
+        
+        logger.info(f" Removed article from reading list '{list_name}' for user: {user}")
+        return Response({
+            "status": "success",
+            "message": "Article removed from reading list"
+        })
+    except Exception as e:
+        logger.error(f" Error removing from reading list: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Failed to remove article from reading list",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_reading_list(request):
+    """Delete a reading list."""
+    try:
+        user = request.user.username
+        list_name = request.data.get('list_name')
+        
+        if not list_name:
+            return Response({
+                "status": "error",
+                "message": "list_name is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        result = reading_lists_collection.delete_one({
+            "username": user,
+            "list_name": list_name
+        })
+        
+        if result.deleted_count == 0:
+            return Response({
+                "status": "error",
+                "message": "Reading list not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        logger.info(f" Deleted reading list '{list_name}' for user: {user}")
+        return Response({
+            "status": "success",
+            "message": "Reading list deleted successfully"
+        })
+    except Exception as e:
+        logger.error(f" Error deleting reading list: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Failed to delete reading list",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

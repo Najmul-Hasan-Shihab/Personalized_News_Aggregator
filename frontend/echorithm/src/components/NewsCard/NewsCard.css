@@ -17,6 +17,61 @@
   transform: translateY(-2px);
 }
 
+/* Bookmark Button - Inline with Source */
+.bookmark-btn-inline {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #e5e7eb;
+  border-radius: 0.4rem;
+  padding: 0.25rem 0.5rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.bookmark-btn-inline:hover {
+  background: #f3f4f6;
+  border-color: #3b82f6;
+  transform: scale(1.1);
+}
+
+.bookmark-btn-inline.bookmarked {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #3b82f6;
+}
+
+.bookmark-btn-inline.bookmarked:hover {
+  background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
+}
+
+.bookmark-btn-inline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bookmark-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bookmark-loading {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Sentiment Sticker - Top Right Corner */
 .sentiment-sticker {
   position: absolute;

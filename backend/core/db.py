@@ -14,6 +14,8 @@ articles_collection = db["articles"]
 user_pref_collection = db["user_preferences"]
 reading_history_collection = db["reading_history"]
 search_history_collection = db["search_history"]
+bookmarks_collection = db["bookmarks"]
+reading_lists_collection = db["reading_lists"]
 
 # Create indexes for better query performance
 try:
@@ -65,6 +67,22 @@ try:
         articles_collection.create_index([("sentiment_label", 1)])
     except OperationFailure:
         logger.info("Filter indexes already exist")
+    
+    # Bookmarks indexes
+    try:
+        bookmarks_collection.create_index([("username", 1), ("created_at", -1)])
+        bookmarks_collection.create_index([("username", 1), ("article_url", 1)], unique=True)
+        logger.info("Created bookmarks indexes")
+    except OperationFailure:
+        logger.info("Bookmarks indexes already exist")
+    
+    # Reading lists indexes
+    try:
+        reading_lists_collection.create_index([("username", 1), ("created_at", -1)])
+        reading_lists_collection.create_index([("username", 1), ("list_name", 1)], unique=True)
+        logger.info("Created reading lists indexes")
+    except OperationFailure:
+        logger.info("Reading lists indexes already exist")
         
 except Exception as e:
     logger.error(f"Error creating indexes: {str(e)}")

@@ -6,6 +6,7 @@ import AuthPage from "./components/Auth/AuthPage";
 import Profile from "./components/profile/Profile";
 import ForYou from "./pages/ForYou";
 import SearchResults from "./pages/SearchResults";
+import Bookmarks from "./pages/Bookmarks";
 import Header from "./components/Header/Header";
 
 import "./App.css";
@@ -22,6 +23,7 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/foryou" element={<ForYou />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/bookmarks" element={<Bookmarks />} />
         </Routes>
       </div>
     </Router>
