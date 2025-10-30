@@ -13,11 +13,16 @@ db = client[settings.MONGODB_DB_NAME]
 articles_collection = db["articles"]
 user_pref_collection = db["user_preferences"]
 reading_history_collection = db["reading_history"]
+search_history_collection = db["search_history"]
 
 # Create indexes for better query performance
 try:
     reading_history_collection.create_index([("username", 1), ("timestamp", -1)])
     reading_history_collection.create_index([("article_url", 1)])
+    
+    # Search history indexes
+    search_history_collection.create_index([("username", 1), ("timestamp", -1)])
+    search_history_collection.create_index([("query", 1)])
     
     # Try to create unique index on articles URL
     try:
@@ -37,6 +42,29 @@ try:
         user_pref_collection.create_index([("username", 1)], unique=True)
     except OperationFailure:
         logger.warning("User preferences index already exists")
+    
+    # Create text index for full-text search on articles
+    try:
+        # Text index on title, summary, and content for search functionality
+        articles_collection.create_index([
+            ("title", "text"),
+            ("summary", "text"),
+            ("content", "text")
+        ], name="article_text_search", default_language="english")
+        logger.info("Created text index for article search")
+    except OperationFailure as e:
+        if "already exists" in str(e).lower():
+            logger.info("Text search index already exists")
+        else:
+            logger.warning(f"Could not create text search index: {str(e)}")
+    
+    # Additional indexes for filtering
+    try:
+        articles_collection.create_index([("category", 1)])
+        articles_collection.create_index([("publishedAt", -1)])
+        articles_collection.create_index([("sentiment_label", 1)])
+    except OperationFailure:
+        logger.info("Filter indexes already exist")
         
 except Exception as e:
     logger.error(f"Error creating indexes: {str(e)}")

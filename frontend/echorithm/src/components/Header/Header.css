@@ -90,6 +90,12 @@
   gap: 1.2rem;
 }
 
+/* ✨ Search Form */
+.header__search-form {
+  display: flex;
+  align-items: center;
+}
+
 /* ✨ Search */
 .header__search {
   padding: 0.5rem 0.9rem;

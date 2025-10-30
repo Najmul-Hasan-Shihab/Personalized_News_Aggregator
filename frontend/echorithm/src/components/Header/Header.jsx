@@ -7,6 +7,7 @@ import Profile from "../profile/Profile";
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [userProfile, setUserProfile] = useState({
     name: "John Doe",
     profilePic: "https://via.placeholder.com/40",
@@ -82,12 +83,25 @@ const Header = () => {
           </nav>
 
           <div className="header__right">
-            <input
-              type="search"
-              className="header__search"
-              placeholder="Search news..."
-              aria-label="Search"
-            />
+            <form 
+              className="header__search-form" 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery.trim()) {
+                  navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+                  setSearchQuery("");
+                }
+              }}
+            >
+              <input
+                type="search"
+                className="header__search"
+                placeholder="Search news..."
+                aria-label="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
 
             <div className="header__buttons">
               {isLoggedIn ? (

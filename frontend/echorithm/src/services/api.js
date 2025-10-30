@@ -169,4 +169,48 @@ export const fetchReadingHistory = async (limit = 50) => {
   }
 };
 
+// === Search APIs ===
+export const searchArticles = async (query, filters = {}) => {
+  try {
+    const params = new URLSearchParams({ q: query });
+    
+    if (filters.category) params.append('category', filters.category);
+    if (filters.sentiment) params.append('sentiment', filters.sentiment);
+    if (filters.date_from) params.append('date_from', filters.date_from);
+    if (filters.date_to) params.append('date_to', filters.date_to);
+    if (filters.sort) params.append('sort', filters.sort);
+    if (filters.limit) params.append('limit', filters.limit);
+    
+    const response = await apiClient.get(`/articles/search/?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error searching articles:", error);
+    throw error;
+  }
+};
+
+export const trackSearchQuery = async (query, resultsCount) => {
+  try {
+    const response = await apiClient.post("/search/track/", {
+      query,
+      results_count: resultsCount
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error tracking search query:", error);
+    // Don't throw - tracking is non-critical
+    return null;
+  }
+};
+
+export const fetchSearchSuggestions = async (limit = 10) => {
+  try {
+    const response = await apiClient.get(`/search/suggestions/?limit=${limit}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching search suggestions:", error);
+    return { recent_searches: [], popular_searches: [] };
+  }
+};
+
 export default apiClient;

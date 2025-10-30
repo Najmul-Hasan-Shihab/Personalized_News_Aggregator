@@ -1,7 +1,7 @@
 # views.py
 from django.http import JsonResponse
 from .utils import aggregate_and_store_articles
-from .db import articles_collection, user_pref_collection, reading_history_collection
+from .db import articles_collection, user_pref_collection, reading_history_collection, search_history_collection
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -167,10 +167,17 @@ def get_filtered_articles(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])  # Allow both authenticated and anonymous users
 def track_article_view(request):
     """Track when a user views/clicks on an article for ML recommendations."""
     try:
+        # Get user if authenticated, otherwise skip tracking
+        if not request.user.is_authenticated:
+            return Response({
+                "status": "success",
+                "message": "Tracking skipped for anonymous user"
+            })
+        
         user = request.user.username
         article_url = request.data.get('article_url')
         article_title = request.data.get('article_title', '')
@@ -310,3 +317,168 @@ def get_personalized_recommendations(request):
                 "message": "Failed to generate recommendations",
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def search_articles(request):
+    """
+    Full-text search across articles with filters.
+    Query params:
+    - q: search query (required)
+    - category: filter by category
+    - sentiment: filter by sentiment (positive, negative, neutral)
+    - date_from: filter articles after this date (ISO format)
+    - date_to: filter articles before this date (ISO format)
+    - sort: sort by 'relevance' (default) or 'date'
+    - limit: number of results (default 50)
+    """
+    try:
+        query = request.GET.get('q', '').strip()
+        category = request.GET.get('category', '')
+        sentiment = request.GET.get('sentiment', '')
+        date_from = request.GET.get('date_from', '')
+        date_to = request.GET.get('date_to', '')
+        sort_by = request.GET.get('sort', 'relevance')
+        limit = int(request.GET.get('limit', 50))
+        
+        if not query:
+            return Response({
+                "status": "error",
+                "message": "Search query 'q' is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Build MongoDB text search query
+        search_filter = {"$text": {"$search": query}}
+        
+        # Add optional filters
+        if category:
+            search_filter["category"] = category
+        
+        if sentiment:
+            search_filter["sentiment_label"] = sentiment.capitalize()
+        
+        # Date range filter
+        if date_from or date_to:
+            date_filter = {}
+            if date_from:
+                date_filter["$gte"] = date_from
+            if date_to:
+                date_filter["$lte"] = date_to
+            search_filter["publishedAt"] = date_filter
+        
+        # Perform search with text score for relevance sorting
+        results = list(articles_collection.find(
+            search_filter,
+            {
+                "_id": 0,
+                "score": {"$meta": "textScore"}  # Include relevance score
+            }
+        ))
+        
+        # Sort results
+        if sort_by == 'relevance':
+            results.sort(key=lambda x: x.get('score', 0), reverse=True)
+        elif sort_by == 'date':
+            results.sort(key=lambda x: x.get('publishedAt', ''), reverse=True)
+        
+        # Remove score from results before sending
+        for result in results:
+            result.pop('score', None)
+        
+        # Limit results
+        results = results[:limit]
+        
+        logger.info(f" Search for '{query}' returned {len(results)} results")
+        return Response({
+            "query": query,
+            "results": results,
+            "count": len(results),
+            "filters_applied": {
+                "category": category or None,
+                "sentiment": sentiment or None,
+                "date_from": date_from or None,
+                "date_to": date_to or None
+            }
+        })
+    except Exception as e:
+        logger.error(f" Search error: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Search failed",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def track_search_query(request):
+    """Track user search queries for analytics and suggestions."""
+    try:
+        user = request.user.username
+        query = request.data.get('query', '').strip()
+        results_count = request.data.get('results_count', 0)
+        
+        if not query:
+            return Response({
+                "status": "error",
+                "message": "Search query is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create search history entry
+        search_entry = {
+            "username": user,
+            "query": query,
+            "results_count": results_count,
+            "timestamp": datetime.utcnow()
+        }
+        
+        search_history_collection.insert_one(search_entry)
+        
+        logger.info(f" Tracked search query for user: {user}, query: '{query}'")
+        return Response({
+            "status": "success",
+            "message": "Search query tracked"
+        })
+    except Exception as e:
+        logger.error(f" Error tracking search query: {str(e)}")
+        return Response({
+            "status": "error",
+            "message": "Failed to track search query",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_search_suggestions(request):
+    """Get popular search queries and user's recent searches."""
+    try:
+        user = request.user.username
+        limit = int(request.GET.get('limit', 10))
+        
+        # Get user's recent searches
+        recent_searches = list(search_history_collection.find(
+            {"username": user},
+            {"_id": 0, "query": 1, "timestamp": 1}
+        ).sort("timestamp", -1).limit(limit))
+        
+        # Get popular searches (most frequent queries)
+        popular_pipeline = [
+            {"$group": {"_id": "$query", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": limit},
+            {"$project": {"query": "$_id", "count": 1, "_id": 0}}
+        ]
+        popular_searches = list(search_history_collection.aggregate(popular_pipeline))
+        
+        return Response({
+            "recent_searches": [s['query'] for s in recent_searches],
+            "popular_searches": [s['query'] for s in popular_searches]
+        })
+    except Exception as e:
+        logger.error(f" Error fetching search suggestions: {str(e)}")
+        return Response({
+            "recent_searches": [],
+            "popular_searches": []
+        })
