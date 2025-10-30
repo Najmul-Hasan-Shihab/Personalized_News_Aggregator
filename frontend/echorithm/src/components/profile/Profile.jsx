@@ -63,6 +63,8 @@ const Profile = () => {
   // Save user data to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("userProfile", JSON.stringify(user));
+    // Dispatch custom event to notify other components (like Header)
+    window.dispatchEvent(new Event("profileUpdated"));
   }, [user]);
 
   const handleChange = (e) => {
@@ -71,16 +73,42 @@ const Profile = () => {
   };
 
   const handleImageChange = (e, type) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const imageData = reader.result;
-        setUser((prev) => ({ ...prev, [type]: imageData }));
-        setEditData((prev) => ({ ...prev, [type]: imageData }));
-      };
-      reader.readAsDataURL(file);
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file');
+      return;
     }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    
+    reader.onloadend = () => {
+      try {
+        const imageData = reader.result;
+        if (imageData) {
+          setUser((prev) => ({ ...prev, [type]: imageData }));
+          setEditData((prev) => ({ ...prev, [type]: imageData }));
+        }
+      } catch (error) {
+        console.error('Error processing image:', error);
+        alert('Failed to process image. Please try another file.');
+      }
+    };
+
+    reader.onerror = () => {
+      console.error('Error reading file');
+      alert('Failed to read image file. Please try again.');
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handleSavePreferences = async () => {
@@ -112,7 +140,13 @@ const Profile = () => {
         {/* Cover and Profile Picture Card */}
         <div className="profile-header-card">
           <div className="cover-image">
-            <img src={user.coverPic} alt="Cover" />
+            <img 
+              src={user.coverPic || 'https://via.placeholder.com/800x200'} 
+              alt="Cover"
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/800x200';
+              }}
+            />
             <label className="edit-image-btn">
               📷 Edit Cover
               <input
@@ -125,7 +159,14 @@ const Profile = () => {
 
           <div className="profile-info">
             <div className="profile-pic-wrapper">
-              <img className="profile-pic" src={user.profilePic} alt="Profile" />
+              <img 
+                className="profile-pic" 
+                src={user.profilePic || 'https://via.placeholder.com/120'} 
+                alt="Profile"
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/120';
+                }}
+              />
               <label className="edit-image-btn profile-btn">
                 📷
                 <input

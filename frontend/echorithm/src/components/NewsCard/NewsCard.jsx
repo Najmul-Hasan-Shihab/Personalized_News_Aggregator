@@ -1,6 +1,7 @@
 import React from "react";
 import "./NewsCard.css";
 import { formatDate } from "../../utils/formatDate";
+import { trackArticleView } from "../../services/api";
 
 const NewsCard = ({ 
   title, 
@@ -15,6 +16,21 @@ const NewsCard = ({
   sentiment_confidence,
   entities
 }) => {
+  const handleArticleClick = async () => {
+    // Track article view for ML recommendations
+    try {
+      await trackArticleView({
+        url: link,
+        title: title,
+        category: category,
+        reading_time: 0, // Can be enhanced with actual reading time tracking
+      });
+    } catch (error) {
+      // Silently fail - tracking shouldn't break UX
+      console.error("Failed to track article view:", error);
+    }
+  };
+
   return (
     <article className="news-card" role="article">
       {/* Sentiment Badge - Top Right Corner */}
@@ -74,7 +90,13 @@ const NewsCard = ({
 
       <div className="news-card__footer">
         {author && <span className="news-card__author">By {author}</span>}
-        <a href={link || "#"} className="news-card__read-more" target="_blank" rel="noopener noreferrer">
+        <a 
+          href={link || "#"} 
+          className="news-card__read-more" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          onClick={handleArticleClick}
+        >
           Read Full Article →
         </a>
       </div>

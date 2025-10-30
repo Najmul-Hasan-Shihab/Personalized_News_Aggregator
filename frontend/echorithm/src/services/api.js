@@ -132,4 +132,41 @@ export const updatePreferences = async (categories) => {
   }
 };
 
+// === Reading History & Recommendations APIs ===
+export const trackArticleView = async (articleData) => {
+  try {
+    const response = await apiClient.post("/articles/track/", {
+      article_url: articleData.url,
+      article_title: articleData.title,
+      category: articleData.category,
+      reading_time: articleData.reading_time || 0,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error tracking article view:", error);
+    // Don't throw error - tracking failures shouldn't break UX
+    return null;
+  }
+};
+
+export const fetchPersonalizedRecommendations = async (limit = 50) => {
+  try {
+    const response = await apiClient.get(`/articles/personalized/?limit=${limit}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching personalized recommendations:", error);
+    throw error;
+  }
+};
+
+export const fetchReadingHistory = async (limit = 50) => {
+  try {
+    const response = await apiClient.get(`/reading-history/?limit=${limit}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching reading history:", error);
+    throw error;
+  }
+};
+
 export default apiClient;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchFilteredArticles, fetchPreferences } from "../services/api";
+import { fetchPersonalizedRecommendations, fetchPreferences } from "../services/api";
 import Sidebar from "../components/Sidebar/Sidebar";
 import NewsCard from "../components/NewsCard/NewsCard";
 import SponsoredCard from "../components/SponsoredCard/SponsoredCard";
@@ -14,6 +14,8 @@ const ForYou = () => {
   const [error, setError] = useState(null);
   const [preferences, setPreferences] = useState([]);
   const [displayCount, setDisplayCount] = useState(10);
+  const [recommendationEngine, setRecommendationEngine] = useState("");
+  const [readingHistoryCount, setReadingHistoryCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,17 +31,22 @@ const ForYou = () => {
       setError(null);
 
       try {
-        // Fetch user preferences and filtered articles
-        const [prefsData, articlesData] = await Promise.all([
+        // Fetch user preferences and ML-powered personalized recommendations
+        const [prefsData, recommendationsData] = await Promise.all([
           fetchPreferences(),
-          fetchFilteredArticles(),
+          fetchPersonalizedRecommendations(100), // Fetch more for better UX
         ]);
 
         setPreferences(prefsData.categories || []);
-        setNewsList(articlesData.articles || []);
+        setNewsList(recommendationsData.articles || []);
+        setRecommendationEngine(recommendationsData.recommendation_engine || "");
+        setReadingHistoryCount(recommendationsData.reading_history_count || 0);
 
-        if (articlesData.articles?.length === 0) {
-          setError("No articles match your preferences. Try adding more categories in your profile.");
+        if (recommendationsData.articles?.length === 0) {
+          setError(
+            recommendationsData.message || 
+            "No articles match your preferences. Try adding more categories in your profile."
+          );
         }
       } catch (err) {
         console.error("Error loading personalized news:", err);
@@ -76,11 +83,23 @@ const ForYou = () => {
 
         <section className="foryou__main-content">
           <div className="foryou__header">
-            <h2 className="section-title">🔍 Personalized for You</h2>
+            <h2 className="section-title">🎯 Personalized for You</h2>
             {preferences.length > 0 && (
-              <p className="preferences-info">
-                Based on your interests: {preferences.join(", ")}
-              </p>
+              <div className="preferences-info-box">
+                <p className="preferences-info">
+                  <strong>Your Interests:</strong> {preferences.join(", ")}
+                </p>
+                {recommendationEngine && (
+                  <p className="ml-engine-info">
+                    <span className="ai-badge">🤖 AI</span> {recommendationEngine}
+                    {readingHistoryCount > 0 && (
+                      <span className="history-badge">
+                        {" "}• Learning from {readingHistoryCount} articles you've read
+                      </span>
+                    )}
+                  </p>
+                )}
+              </div>
             )}
           </div>
 
@@ -109,9 +128,14 @@ const ForYou = () => {
               <div className="foryou__news-grid">
                 {newsList.slice(0, displayCount).map((item, index) => (
                   <div key={index} className="foryou-card-wrapper">
-                    {item.category && (
+                    {item.recommendation_reason && (
                       <div className="foryou-tag">
-                        Based on your interest in {item.category}
+                        💡 {item.recommendation_reason}
+                      </div>
+                    )}
+                    {item.recommendation_score && (
+                      <div className="recommendation-score-badge">
+                        Match: {Math.round(item.recommendation_score)}%
                       </div>
                     )}
                     <NewsCard
@@ -137,7 +161,7 @@ const ForYou = () => {
                   onClick={loadMore}
                   disabled={loading}
                 >
-                  Load More
+                  Load More Recommendations
                 </button>
               )}
             </>

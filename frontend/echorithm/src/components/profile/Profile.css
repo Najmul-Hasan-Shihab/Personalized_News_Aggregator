@@ -121,6 +121,7 @@
   flex: 1;
   padding-top: 60px;
   pointer-events: auto;
+  max-width: calc(100% - 360px);
 }
 
 .profile-details h2 {
