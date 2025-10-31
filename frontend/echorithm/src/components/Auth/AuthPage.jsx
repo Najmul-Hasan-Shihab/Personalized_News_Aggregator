@@ -58,9 +58,9 @@ const AuthPage = () => {
             </div>
 
             <div className="auth-team-info">
-              <p className="team-label">Final Year Project</p>
+              <p className="team-label">Software Development Project</p>
               <p className="team-members">
-                FAHIM • MISKAT • SHIHAB • TASIN
+                FAHIM • MISKAT • SHIHAB 
               </p>
               <p className="team-supervisor">Supervised by Mohammad Arfizurrahman</p>
             </div>

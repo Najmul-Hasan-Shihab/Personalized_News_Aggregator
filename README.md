@@ -240,11 +240,12 @@ Authorization: Bearer <access_token>
 
 
 
-| Screenshot 1 | Screenshot 2 | Screenshot 3 |
-|---------------|---------------|---------------|
-| ![Screenshot 1](./assets/screenshots/screen1.png) | ![Screenshot 2](./assets/screenshots/screen2.png) | ![Screenshot 3](./assets/screenshots/screen3.png) |
-| ![Screenshot 4](./assets/screenshots/screen4.png) | ![Screenshot 5](./assets/screenshots/screen5.png) | ![Screenshot 6](./assets/screenshots/screen6.png) |
-
+| Column 1 | Column 2 |
+|---------------|---------------|
+| ![Screenshot 1](./assets/screenshots/ss1.png) | ![Screenshot 2](./assets/screenshots/ss2.png) |
+| ![Screenshot 3](./assets/screenshots/ss3.png) | ![Screenshot 4](./assets/screenshots/ss4.png) | 
+| ![Screenshot 5](./assets/screenshots/ss5.png) | ![Screenshot 6](./assets/screenshots/ss6.png) |
+| ![Screenshot 7](./assets/screenshots/ss7.png) | ![Screenshot 8](./assets/screenshots/ss8.png) |
 
 
 ---
