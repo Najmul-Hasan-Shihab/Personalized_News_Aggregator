@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchArticles } from "../services/api";
+import { fetchArticles, updateArticles } from "../services/api";
 import "./Home.css";
 
 import Sidebar from "../components/Sidebar/Sidebar";
@@ -15,6 +15,8 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const [fetchStatus, setFetchStatus] = useState("");
 
   useEffect(() => {
     const loadNews = async () => {
@@ -53,6 +55,39 @@ const Home = () => {
 
   const loadMore = () => {
     setDisplayCount((prev) => prev + 5);
+  };
+
+  const handleFetchArticles = async () => {
+    setIsFetching(true);
+    setFetchStatus("Fetching latest articles...");
+    
+    try {
+      await updateArticles();
+      setFetchStatus("Processing articles with AI...");
+      
+      // Wait a bit for processing, then reload articles
+      setTimeout(async () => {
+        const data = await fetchArticles();
+        const sorted = data.sort(
+          (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt)
+        );
+        setNews(sorted);
+        setFetchStatus("Articles updated successfully!");
+        
+        // Clear status after 3 seconds
+        setTimeout(() => {
+          setFetchStatus("");
+          setIsFetching(false);
+        }, 3000);
+      }, 2000);
+    } catch (err) {
+      console.error("Error fetching articles:", err);
+      setFetchStatus("Failed to fetch articles. Please try again.");
+      setTimeout(() => {
+        setFetchStatus("");
+        setIsFetching(false);
+      }, 3000);
+    }
   };
 
   const latestPosts = filteredNews.slice(0, 5).map((item, i) => ({
@@ -129,6 +164,40 @@ const Home = () => {
           />
         </aside>
       </main>
+
+      {/* Floating Fetch Button */}
+      <button
+        className={`floating-fetch-button ${isFetching ? 'fetching' : ''}`}
+        onClick={handleFetchArticles}
+        disabled={isFetching}
+        title="Fetch latest articles"
+      >
+        {isFetching ? (
+          <div className="fetch-spinner"></div>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+        )}
+      </button>
+
+      {/* Fetch Status Notification */}
+      {fetchStatus && (
+        <div className="fetch-status-notification">
+          {fetchStatus}
+        </div>
+      )}
 
       <Footer />
     </>
